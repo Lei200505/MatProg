@@ -79,7 +79,7 @@ def reconstruct_path(p, start, end):
     
     
 start = time.time()
-path = dijkstra(G, '102276', 'CSF00952', 43200)
+path = dijkstra(G, 'F03965', '008280', 43200)
 for step in path:
     print(f"Indulás: {step[5][0]} - {step[3]} ({step[4]}) - Érkezés: {step[5][0] + step[5][1]} - {step[1]}")
 end = time.time()
