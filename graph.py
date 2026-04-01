@@ -64,13 +64,25 @@ class Graph:
             how="left"
         )
 
+        #bekerul meg az adott el tipusa is, hogy visszakovethetobb legyen, illetve vizualizacional is benne legyen
+        #route_type = 0: villamos
+        #route_type = 1: metro
+        #route_type = 3: busz
+        #route_type = 11: troli
+        #route_type = 109: hev
+        edges_df = edges_df.merge(
+            self.routes[["route_id", "route_type"]],
+            on="route_id",
+            how="left"
+        )
+
         #most pedig egy olyan tomb kell nekunk, amiben benne vannak a konkret elek, jaratonkent egy:
         #1 rekord igy fog kinezni:
         #kiindulo megallo, erkezesi megallo (konkret uv el), indulasi ido, erkezesi ido parok a nap folyaman, / jaratszam
         #Szentlelek ter - Florian ter, 237-es busz, [(7:00, 7:05 viszonylat_id), (7:20, 7:25, viszonlat_id),...]
         edges_collapsed = (
             edges_df
-            .groupby(["from_stop", "to_stop", "route_id"])
+            .groupby(["from_stop", "to_stop", "route_id", "route_type"])
             .apply(lambda group: list(zip(group["departure_time"], group["arrival_time"], group["trip_id"])))
             .reset_index(name="departures")
         )
@@ -111,7 +123,8 @@ class Graph:
                 {"from_stop": stop_ids[i],
                  "to_stop": stop_ids[j],
                  "route_id": "TRANSFER",
-                 "departures": [(0, t, "TRANSFER")]}
+                 "route_type": "TRANSFER",
+                 "departures": [(0, t, "TRANSFER")],}
                 for j, t in zip(neighbors, travel_times)
             ])
         
@@ -126,6 +139,7 @@ class Graph:
                 row.to_stop,
                 key=row.route_id,
                 route_id=row.route_id,
+                route_type=row.route_type,
                 departures=dep_list
             )
         return G
@@ -147,6 +161,6 @@ class Graph:
         print("File saved successfully at:", path)
 
 source = r"C:\Users\Lenovo\Desktop\matprogcsom\budapest data"
-out_loc = r"C:\Users\Lenovo\Desktop\matprogcsom\grafepites"
+out_loc = r"C:\Users\Lenovo\Desktop\matprogcsom\budapest data"
 g = Graph(source)
 g.save_graph(out_loc)
