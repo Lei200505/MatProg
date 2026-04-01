@@ -194,7 +194,7 @@ class Graph:
             json.dump(data, f, indent=2)
         print("File saved successfully at:", path)
 
-source = r"C:\Users\Lenovo\Desktop\matprogcsom\budapest data"
-out_loc = r"C:\Users\Lenovo\Desktop\matprogcsom\budapest data"
+source = "budapest_gtfs"
+out_loc = "."
 g = Graph(source)
 g.save_graph(out_loc)
