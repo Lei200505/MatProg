@@ -100,25 +100,46 @@ class Graph:
 
     # https://en.wikipedia.org/wiki/Geographic_coordinate_system
     def transfer_edges(self, max_transfer_dist = 200, max_walking_speed = 1.5):
+        #stops tarolja minden megallo (csucs) szelessegi es hosszusagi koordinatait
+        #ezeket egy numpy tombbe, majd ckdtreeben fogjuk tarolni
         coords = self.stops[["stop_lat", "stop_lon"]].to_numpy()
+        #a ckdtree egy scipy.spatial-beli osztaly, ami nagyon gyorsan lehetove teszi az adott tavolsagra levo pontok elereset
+        #eloszor for ciklusos implementacio volt, es az 45 percig futottatta az O(n^2) csucsparra
         tree = cKDTree(coords)
 
         stop_ids = self.stops["stop_id"].to_numpy()
 
+        #ezzel a becslessel fogjuk gombi koordinatak/meterek kozott atvaltani
         meters_per_degree = 111000 #ez becsles, wiki: lat: 110.6 km/deg, lon: 111.3 km/deg
         radius_deg = max_transfer_dist / meters_per_degree
 
+        #a ckdtree.query_ball_point egy B(x, r) gombot ad meg a mar atvaltott tavolsag szerint
+        #alapertelmezve legfeljebb 200m-es atszallasokat engedelyezunk
+        #korabban kiprobualtunk 100m-t de akkor viszonylag trivialis atszallasok (pl Jaszai troli megallo - Jaszai 4-6 megallo) kimaradtak
+        #minden koordinataparra (csucs a grafban) megadjuk azon koordinataparokat (csucsokat a grafban), amelyek <=200m-re vannak
         neighbors_list = tree.query_ball_point(coords, radius_deg)
         edges = []
 
+        #eleket epitunk a kozeli pontok kozott
         for i, neighbors in enumerate(neighbors_list):
+            #kidobjuk onmagat
             neighbors = [j for j in neighbors if j != i]
 
+            #van olyan pont, amelynek nincsenek szomszedjai
+            #ez viszonylag ritka, altalaban iranyonkent 1-1 csucs van kulon
+            #ez alol kivetelt kepeznek pl. a rackevei hev megallo, ahol bar 1 megallo van mindket iranynak, megis fel van veve ket csucs
+            #ezeket a pontokat skippeljuk
             if neighbors == []:
                 continue
-
+            
+            
+            #kiszamoljuk a tavolasagot, majd az el koltsege az tavolsag / walking_speed ami 1.5m/s alapbol
+            #az atszallasi eleket kulon "TRANSFER" attributummal jeloljuk
+            #a departure times mindossze 0, ezt a dijkstranak majd kulon kell keznie
+            #azaz a transfer edgeket MINDIG lehet hasznalni majd
             dists = np.linalg.norm(coords[neighbors] - coords[i], axis=1) * meters_per_degree
             travel_times = (dists / max_walking_speed).astype(int)
+            #egyebkent az adatstruktura a fenti kulonbsegeken kivul megegyezik a sima elekkel
             edges.extend([
                 {"from_stop": stop_ids[i],
                  "to_stop": stop_ids[j],
@@ -131,9 +152,18 @@ class Graph:
         return edges
         
     def graph(self, edgelist):
+        #mivel vannak parhuzamos elek: 7-es es 8-as busznak is van keleti-huszar utca ele
+        #ezert nx.MultiDiGraph kell
         G = nx.MultiDiGraph()
         for row in edgelist.itertuples(index = False):
-            dep_list = [(int(dep), int(arr - dep)) for dep, arr, _ in row.departures]
+            #rendezzunk az indulasi idoket departure time szerint
+            dep_list = sorted([(int(dep), int(arr - dep)) for dep, arr, _ in row.departures], key=lambda x: x[0])
+            #ezek utan egy el ugy nez ki, hogy:
+            #melyik csucsbol -> melyikbe
+            #key az csak technikai, hogy ne zavarja ossze a networkx-et, enelkul nehany elet egymasba nyomott
+            #route_id: hanyas jarat, pl 7es busz vagy H6 hev
+            #route_type: busz/metro/vili/troli/hev
+            #departures: lista az indulo jaratokrol: [(mikor indul, mennyi ido aterni), (10:10:12, 60), (11:10:12, 60),...]
             G.add_edge(
                 row.from_stop,
                 row.to_stop,
@@ -144,6 +174,10 @@ class Graph:
             )
         return G
     
+    #elmentjuk a grafot egy jsonbe
+    #ehhez kell os es json package
+    #ebbol utana with open(path, "r", utf-8) as f: data = json.load(f)-el visszanyerheto
+    #majd nx objektum: G=nx.node_link_graph(data)-val nx grafot lehet visszakapni
     def save_graph(self, out_loc=None, fname = "budapest.json"):
 
         if out_loc is None:
