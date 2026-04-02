@@ -19,6 +19,7 @@ def graf_betoltes(fajl):
 
 #implementálni éjfélt
 def dijkstra(graph, start, end, start_time):
+    alg_start = time.time()
     #Inicializáció
     vege = False
     
@@ -33,15 +34,18 @@ def dijkstra(graph, start, end, start_time):
     
     
     
-    #Algoritmus futtatása
+    #Algoritmus futtatása (amíg elérjük a célt vagy nincs több hely ahova el tudnánk menni)
     while len(visited) > 0 and not vege:
         u = min(visited, key=lambda x: K[x])
         if u == end:
             vege = True
         visited.remove(u)
         
-        
-        for u, v, key, data in G.out_edges(u, keys=True, data=True):
+        # Mivel minden u-v csúcspárra, annyi él van köztük, mint ahány járat megy köztük,
+        #így járatonként (data) kell végigiterálni a csúcspárokon/éleken
+        for u, v, data in G.out_edges(u, data=True):
+            #Emellett minden párosított megálló-járat párra az élen van az összes indulás ideje
+            #Ezeken végig kell iterálni, úgy hogy mindig csak a legelső elérhető járatra szeretnénk felszállni
             for dep_time, duration in data["departures"]:
                 # Átszállás és járat esetén:
                 if dep_time > K[u] or (dep_time == K[u] and p[u][3] == data["route_id"]):
@@ -53,8 +57,7 @@ def dijkstra(graph, start, end, start_time):
                         visited.add(v)
                         not_visited = not_visited - {v}
                         p[v] = [u, v, None, data["route_id"], data["route_type"], (dep_time, duration)]
-                    
-
+            
                 # Séta esetén:
                 elif data["route_type"] == "TRANSFER":
                     if v in visited and K[v] > K[u] + duration:
@@ -65,8 +68,12 @@ def dijkstra(graph, start, end, start_time):
                         visited.add(v)
                         not_visited = not_visited - {v}
                         p[v] = [u, v, None, "TRANSFER", "TRANSFER", (K[u], duration)]
+    alg_end = time.time()
+    print(f"Az algoritmus futásideje: {alg_end - alg_start}")
     return reconstruct_path(p, start, end)
-    
+
+
+# Legrövidebb út rekonstruálása a szülőkkel
 def reconstruct_path(p, start, end):
     path = []
     current = end
@@ -75,6 +82,17 @@ def reconstruct_path(p, start, end):
         current = p[current][0]
     path.append(p[start])
     return path[::-1]
+
+def szep_ido(t):
+    h = t // 3600
+    m = (t % 3600) // 60
+    s = t % 60
+    return f"{h:02d}:{m:02d}:{s:02d}"
+
+
+# Adatfeldolgozásnál konvertálni a 24 óránál nagyobbakat vissza (Bálint)
+def ido_konverzio(t):
+    return t % 86400
 
 def kiiras(p):
     for step in p:
