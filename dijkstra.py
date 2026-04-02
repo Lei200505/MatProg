@@ -6,17 +6,18 @@ import heapq
 
 
 # Gráf betöltése
-start = time.time()
-with open("budapest.json", "r", encoding="UTF-8") as f:
-    data = json.load(f)
-G = nx.node_link_graph(data)
-end = time.time()
-print("A gráf betöltése:", end - start, "másodperc")
+def graf_betoltes(fajl):
+    start = time.time()
+    with open(fajl, "r", encoding="UTF-8") as f:
+        data = json.load(f)
+    end = time.time()
+    print("A gráf betöltése:", end - start, "másodperc")
+    return nx.node_link_graph(data)
 
 
 
 
-
+#implementálni éjfélt
 def dijkstra(graph, start, end, start_time):
     #Inicializáció
     vege = False
@@ -75,15 +76,14 @@ def reconstruct_path(p, start, end):
     path.append(p[start])
     return path[::-1]
 
+def kiiras(p):
+    for step in p:
+        print(f"Indulás: {step[5][0]} - {step[3]} ({step[4]}) - Érkezés: {step[5][0] + step[5][1]} - {step[1]}")
 
-    
-    
-start = time.time()
-path = dijkstra(G, 'F03965', '008280', 43200)
-for step in path:
-    print(f"Indulás: {step[5][0]} - {step[3]} ({step[4]}) - Érkezés: {step[5][0] + step[5][1]} - {step[1]}")
-end = time.time()
-print("Dijkstra algoritmus futtatása:", end - start, "másodperc")
+
+G = graf_betoltes("budapest.json")
+path = dijkstra(G, 'F01163', 'F02112', 43200)
+kiiras(path)
 
 
 
