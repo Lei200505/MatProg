@@ -2,7 +2,7 @@ import numpy as np
 import networkx as nx
 import pandas as pd
 from scipy.spatial import cKDTree
-import json
+import pickle
 import os
 
 class Graph:
@@ -174,11 +174,12 @@ class Graph:
             )
         return G
     
-    #elmentjuk a grafot egy jsonbe
-    #ehhez kell os es json package
-    #ebbol utana with open(path, "r", utf-8) as f: data = json.load(f)-el visszanyerheto
+    #elmentjuk a grafot egy .pkl-be
+    #eredileg json-be akartunk menteni, de teszteles utan akar 3x gyorsitast kaptunk
+    #ehhez kell os es pickle package
+    #ebbol utana with open(path, "r", utf-8) as f: data = pickle.load(f)-el visszanyerheto
     #majd nx objektum: G=nx.node_link_graph(data)-val nx grafot lehet visszakapni
-    def save_graph(self, out_loc=None, fname = "budapest.json"):
+    def save_graph(self, out_loc=None, fname = "budapest.pkl"):
 
         if out_loc is None:
             out_loc = self.output_folder
@@ -191,7 +192,7 @@ class Graph:
         data = nx.node_link_data(G)
 
         with open(path, "w", encoding="UTF-8") as f:
-            json.dump(data, f, indent=2)
+            pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
         print("File saved successfully at:", path)
 
 source = "budapest_gtfs"
