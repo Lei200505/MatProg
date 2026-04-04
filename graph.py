@@ -191,7 +191,7 @@ class Graph:
 
         data = nx.node_link_data(G)
 
-        with open(path, "w", encoding="UTF-8") as f:
+        with open(path, "wb", encoding="UTF-8") as f:
             pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
         print("File saved successfully at:", path)
 
