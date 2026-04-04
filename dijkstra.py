@@ -71,7 +71,7 @@ def dijkstra(graph, start, end, start_time):
                         p[v] = [u, v, None, "TRANSFER", "TRANSFER", (K[u], duration)]
     alg_end = time.time()
     print(f"Az algoritmus futásideje: {alg_end - alg_start}")
-    return reconstruct_path(p, start, end)
+    return (reconstruct_path(p, start, end), p)
 
 
 # Legrövidebb út rekonstruálása a szülőkkel
@@ -100,9 +100,10 @@ def kiiras(p):
         print(f"Indulás: {step[5][0]} - {step[3]} ({step[4]}) - Érkezés: {step[5][0] + step[5][1]} - {step[1]}")
 
 source = "budapest.pkl"
-G = graf_betoltes(source)
-path = dijkstra(G, 'F03958', 'F03966', 43200)
-kiiras(path)
+source_night = "night_budapest.pkl"
+G = graf_betoltes(source, source_night, 86200)
+path = dijkstra(G, 'F03958', 'F03966', 86200)
+kiiras(path[0])
 
 
 
