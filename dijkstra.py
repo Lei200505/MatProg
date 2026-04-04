@@ -8,7 +8,7 @@ import heapq
 # Gráf betöltése
 def graf_betoltes(fajl):
     start = time.time()
-    with open(fajl, "rb", encoding="UTF-8") as f:
+    with open(fajl, "rb") as f:
         data = pickle.load(f)
     end = time.time()
     print("A gráf betöltése:", end - start, "másodperc")
@@ -98,9 +98,9 @@ def kiiras(p):
     for step in p:
         print(f"Indulás: {step[5][0]} - {step[3]} ({step[4]}) - Érkezés: {step[5][0] + step[5][1]} - {step[1]}")
 
-source = r"C:\Users\Lenovo\Desktop\matprogcsom\budapest data\"
-G = graf_betoltes("budapest.json")
-path = dijkstra(G, 'F01163', 'F02112', 43200)
+source = r"C:\Users\Lenovo\Desktop\matprogcsom\budapest data\night_budapest.pkl"
+G = graf_betoltes(source)
+path = dijkstra(G, '110321', 'F03525', 85000)
 kiiras(path)
 
 
