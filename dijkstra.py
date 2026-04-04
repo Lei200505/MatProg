@@ -1,6 +1,6 @@
 import numpy as np
 import networkx as nx
-import json
+import pickle
 import time
 import heapq
 
@@ -9,7 +9,7 @@ import heapq
 def graf_betoltes(fajl):
     start = time.time()
     with open(fajl, "r", encoding="UTF-8") as f:
-        data = json.load(f)
+        data = pickle.load(f)
     end = time.time()
     print("A gráf betöltése:", end - start, "másodperc")
     return nx.node_link_graph(data)
