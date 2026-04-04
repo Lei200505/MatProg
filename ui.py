@@ -3,6 +3,7 @@ stop_list = ['Örs vezér tere M+H, déli tárolótér', 'Kőbánya alsó vasút
 
 
 import tkinter as tk
+from tkinter import ttk
 #from unidecode import unidecode
 
 root = tk.Tk()
@@ -146,15 +147,15 @@ lbl3.grid(row=3, column=0)
 hr = tk.StringVar(root)
 hr.set("00")
 hours = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23']
-hoursopt = tk.OptionMenu(root, hr, *hours)
-hoursopt.configure(padx=15, font=("Courier", 18), bg = "white", fg="purple")
+hoursopt = ttk.Combobox(root, values=hours, textvariable=hr, state="readonly")
+hoursopt.configure(width=4, font=("Courier", 18), background = "white", foreground="purple", justify="center")
 hoursopt.grid(row=3, column=1)
 
 min = tk.StringVar(root)
 min.set("00")
 mins = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59']
-minsopt = tk.OptionMenu(root, min, *mins)
-minsopt.configure(padx=15, font=("Courier", 18), bg = "white", fg="purple")
+minsopt = ttk.Combobox(root, values=mins, textvariable=min, state="readonly")
+minsopt.configure(width=4, font=("Courier", 18), background = "white", foreground="purple", justify="center")
 minsopt.grid(row=3, column=2)
 
 terv = tk.Button(root, width=60, text="Tervezés", font=("Courier", 18), bg="purple", fg="white", command=endpoints, state="disabled")
