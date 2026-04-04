@@ -100,7 +100,7 @@ def kiiras(p):
 
 
 G = graf_betoltes("budapest.json")
-path = dijkstra(G, 'F01163', 'F02112', 43200)
+path = dijkstra(G, 'F03958', 'F03966', 43200)
 kiiras(path)
 
 
