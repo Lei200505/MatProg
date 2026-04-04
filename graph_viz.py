@@ -2,7 +2,7 @@ import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-import json
+import pickle
 import os
 
 class GraphViz:
@@ -35,8 +35,8 @@ class GraphViz:
 
 
 source = r"C:\Users\Lenovo\Desktop\matprogcsom\budapest data"
-with open(f"{source}/budapest.json", "r", encoding="UTF-8") as f:
-    data = json.load(f)
+with open(f"{source}/night_budapest.pkl", "rb") as f:
+    data = pickle.load(f)
 
 G = nx.node_link_graph(data)
 
