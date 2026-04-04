@@ -2,11 +2,12 @@ import numpy as np
 import networkx as nx
 import pickle
 import time
-import heapq
 
 
 # Gráf betöltése
-def graf_betoltes(fajl, ido):
+def graf_betoltes(fajl, fajl_nighttime, t):
+    if 79200 < t <  86400:
+        fajl = fajl_nighttime
     start = time.time()
     with open(fajl, "rb") as f:
         data = pickle.load(f)
