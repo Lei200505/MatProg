@@ -4,7 +4,7 @@ import pickle
 import time
 import math
 
-
+#Adatok betöltése
 # Gráf betöltése
 def graf_betoltes(fajl, fajl_nighttime, t):
     #Amennyiben este 10 után indulunk csak az este 22:00-05:00 közötti járatokat nézzük
@@ -25,9 +25,17 @@ def stops(fajl):
             stop_id, name = line.strip().split(": ")
             stops_dict[stop_id] = name
     return stops_dict
+#Járatszamok betöltése
+def routes(fajl):
+    r_dict = {}
+    with open(fajl, "r", encoding="utf-8") as f:
+        for line in f:
+            r_id, r_name = line.strip().split(": ")
+            r_dict[r_id] = r_name
+    return r_dict
 
 
-
+#Algoritmus
 def dijkstra(graph, start, end, start_time):
     alg_start = time.time()
     #Inicializáció
@@ -84,7 +92,6 @@ def dijkstra(graph, start, end, start_time):
     alg_end = time.time()
     print(f"Az algoritmus futásideje: {alg_end - alg_start}")
     return (reconstruct_path(p, start, end), p)
-
 # Legrövidebb út rekonstruálása a szülőkkel
 def reconstruct_path(p, start, end):
     path = []
@@ -96,7 +103,7 @@ def reconstruct_path(p, start, end):
     return path[::-1]
 
 
-
+#Az út összehúzása járatok szerint
 #p[i] =[elindulasi csúcs, aktuáli csúcs, None (key), járat szama, járat típusa, (indulási idő, utazási idő)]
 def pretty_path(p):
     #Inicializálás
@@ -115,20 +122,17 @@ def pretty_path(p):
     #Kiíratás
     for jarat in pretty:
         if jarat[3] == "TRANSFER":
-            print(f"Séta {id_to_stops(stops_dict,jarat[2])} megállóig [{math.ceil((jarat[-1][-1] - jarat[-1][0])/60)} perc]")
+            print(f"Séta {id_to_name(stops_dict,jarat[2])} megállóig [{math.ceil((jarat[-1][-1] - jarat[-1][0])/60)} perc]")
         #járattípusok szerint
         else:
-            print(f"{jarat[3]}: {id_to_stops(stops_dict, jarat[0])} megállótól {id_to_stops(stops_dict, jarat[2])} megállóig  [{math.ceil((jarat[-1][-1] - jarat[-1][0])/60)} perc]")
-    
+            print(f"{id_to_name(routes_dict, jarat[3])}: {id_to_name(stops_dict, jarat[0])} megállótól {id_to_name(stops_dict, jarat[2])} megállóig  [{math.ceil((jarat[-1][-1] - jarat[-1][0])/60)} perc]")
 def pretty_time(t):
     h = t // 3600
     m = (t % 3600) // 60
     s = t % 60
-    return f"{h:02d}:{m:02d}:{s:02d}"
-      
-def id_to_stops(di, id):
+    return f"{h:02d}:{m:02d}:{s:02d}"     
+def id_to_name(di, id):
     return di[id]
-
 
 #Nem kell
 #def kiiras(p):
@@ -141,8 +145,9 @@ source = "budapest.pkl"
 source_night = "night_budapest.pkl"
 G = graf_betoltes(source, source_night, 43000)
 stops_dict = stops("stops_out.txt")
+routes_dict = routes("./routes_out.txt")
 
 
 
-path = dijkstra(G, 'F03966', '008280', 43000)
+path = dijkstra(G, '008056', '008324', 43000)
 pretty_path(path[0])
