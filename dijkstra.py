@@ -2,10 +2,13 @@ import numpy as np
 import networkx as nx
 import pickle
 import time
+import math
 
 
 # Gráf betöltése
 def graf_betoltes(fajl, fajl_nighttime, t):
+    #Amennyiben este 10 után indulunk csak az este 22:00-05:00 közötti járatokat nézzük
+    #Így könnyebb a napváltást implementálni az algoritmusban
     if 79200 < t <  86400:
         fajl = fajl_nighttime
     start = time.time()
@@ -14,11 +17,17 @@ def graf_betoltes(fajl, fajl_nighttime, t):
     end = time.time()
     print("A gráf betöltése:", end - start, "másodperc")
     return nx.node_link_graph(data)
+# Megállók betöltése
+def stops(fajl):
+    stops_dict = {}
+    with open(fajl, "r", encoding="utf-8") as f:
+        for line in f:
+            stop_id, name = line.strip().split(": ")
+            stops_dict[stop_id] = name
+    return stops_dict
 
 
 
-
-#implementálni éjfélt
 def dijkstra(graph, start, end, start_time):
     alg_start = time.time()
     #Inicializáció
@@ -30,7 +39,7 @@ def dijkstra(graph, start, end, start_time):
     K = {start: start_time}
     
     
-    #[elindulasi csucs, aktualis csucs, erkezes ideje, jarat szama, jarat tipusa, (indulasi ido, utazasi ido)]
+    #[elindulasi csucs, aktualis csucs, None (key), jarat szama, jarat tipusa, (indulasi ido, utazasi ido)]
     p = {start: [start, start, None, None, None, (start_time, 0)]} 
     
     
@@ -38,6 +47,9 @@ def dijkstra(graph, start, end, start_time):
     #Algoritmus futtatása (amíg elérjük a célt vagy nincs több hely ahova el tudnánk menni)
     while len(visited) > 0 and not vege:
         u = min(visited, key=lambda x: K[x])
+        
+        # Ha kikerül a végállomás leállunk
+        #esetleg breakelni ha még egy iterációt megy
         if u == end:
             vege = True
         visited.remove(u)
@@ -73,7 +85,6 @@ def dijkstra(graph, start, end, start_time):
     print(f"Az algoritmus futásideje: {alg_end - alg_start}")
     return (reconstruct_path(p, start, end), p)
 
-
 # Legrövidebb út rekonstruálása a szülőkkel
 def reconstruct_path(p, start, end):
     path = []
@@ -84,26 +95,54 @@ def reconstruct_path(p, start, end):
     path.append(p[start])
     return path[::-1]
 
-def szep_ido(t):
+
+
+#p[i] =[elindulasi csúcs, aktuáli csúcs, None (key), járat szama, járat típusa, (indulási idő, utazási idő)]
+def pretty_path(p):
+    #Inicializálás
+    #[elindulási csúcs, [köztes megállók], leszállási csúcs, járat száma, járat típusa, [elindulási idő, köztes megallók érkezési ideje, érkezési idő]]
+    pretty = [ [p[1][0], [], p[1][1], p[1][3], p[1][4], [p[1][-1][0], p[1][-1][0]+p[1][-1][1]] ] ]
+    for i in range(2, len(p)):
+        if p[i][3] == p[i-1][3]:
+            pretty[-1][1].append(p[i][0])
+            pretty[-1][2] = p[i][1]
+            pretty[-1][-1][-1] = p[i][-1][0]
+            pretty[-1][-1].append(p[i][-1][0]+p[i][-1][1])
+        else:
+            pretty.append([p[i][0], [], p[i][1], p[i][3], p[i][4], [p[i][-1][0], p[i][-1][0]+p[i][-1][1]]])
+
+    
+    #Kiíratás
+    for jarat in pretty:
+        if jarat[3] == "TRANSFER":
+            print(f"Séta {id_to_stops(stops_dict,jarat[2])} megállóig [{math.ceil((jarat[-1][-1] - jarat[-1][0])/60)} perc]")
+        #járattípusok szerint
+        else:
+            print(f"{jarat[3]}: {id_to_stops(stops_dict, jarat[0])} megállótól {id_to_stops(stops_dict, jarat[2])} megállóig  [{math.ceil((jarat[-1][-1] - jarat[-1][0])/60)} perc]")
+    
+def pretty_time(t):
     h = t // 3600
     m = (t % 3600) // 60
     s = t % 60
     return f"{h:02d}:{m:02d}:{s:02d}"
+      
+def id_to_stops(di, id):
+    return di[id]
 
 
-# Adatfeldolgozásnál konvertálni a 24 óránál nagyobbakat vissza (Bálint)
-def ido_konverzio(t):
-    return t % 86400
+#Nem kell
+#def kiiras(p):
+#    for step in p:
+#        print(f"Indulás-Érkezés: {pretty_time(step[5][0])}-{pretty_time(step[5][0] + step[5][1])}, "
+#              f"járat:{step[3]} (járattípus: {step[4]}) - {step[1]}")
 
-def kiiras(p):
-    for step in p:
-        print(f"Indulás: {step[5][0]} - {step[3]} ({step[4]}) - Érkezés: {step[5][0] + step[5][1]} - {step[1]}")
 
 source = "budapest.pkl"
 source_night = "night_budapest.pkl"
-G = graf_betoltes(source, source_night, 86200)
-path = dijkstra(G, 'F03958', 'F03966', 86200)
-kiiras(path[0])
+G = graf_betoltes(source, source_night, 43000)
+stops_dict = stops("stops_out.txt")
 
 
 
+path = dijkstra(G, 'F03966', '008280', 43000)
+pretty_path(path[0])
