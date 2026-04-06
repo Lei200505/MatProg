@@ -9,13 +9,15 @@ import math
 def graf_betoltes(fajl, fajl_nighttime, t):
     #Amennyiben este 10 után indulunk csak az este 22:00-05:00 közötti járatokat nézzük
     #Így könnyebb a napváltást implementálni az algoritmusban
+    
+    
+    #start = time.time() <-- más a függvény futása mint ez
     if 79200 < t <  86400:
         fajl = fajl_nighttime
-    start = time.time()
     with open(fajl, "rb") as f:
         data = pickle.load(f)
-    end = time.time()
-    print("A gráf betöltése:", end - start, "másodperc")
+    #end = time.time()
+    #print("A gráf betöltése:", end - start, "másodperc")
     return nx.node_link_graph(data)
 # Megállók betöltése
 def stops(fajl):
@@ -37,7 +39,7 @@ def routes(fajl):
 
 #Algoritmus
 def dijkstra(graph, start, end, start_time):
-    alg_start = time.time()
+    #alg_start = time.time()
     #Inicializáció
     vege = False
     
@@ -89,8 +91,8 @@ def dijkstra(graph, start, end, start_time):
                         visited.add(v)
                         not_visited = not_visited - {v}
                         p[v] = [u, v, None, "TRANSFER", "TRANSFER", (K[u], duration)]
-    alg_end = time.time()
-    print(f"Az algoritmus futásideje: {alg_end - alg_start}")
+    #alg_end = time.time()
+    #print(f"Az algoritmus futásideje: {alg_end - alg_start}")
     return (reconstruct_path(p, start, end), p)
 # Legrövidebb út rekonstruálása a szülőkkel
 def reconstruct_path(p, start, end):
@@ -141,13 +143,32 @@ def id_to_name(di, id):
 #              f"járat:{step[3]} (járattípus: {step[4]}) - {step[1]}")
 
 
+start_0 = time.time()
+start_1 = time.time()
 source = "budapest.pkl"
 source_night = "night_budapest.pkl"
-G = graf_betoltes(source, source_night, 43000)
+G = graf_betoltes(source, source_night, time.time())
+end_1 = time.time()
+print(f"Gráf betöltése: {end_1-start_1}")
+
+start_2 = time.time()
 stops_dict = stops("stops_out.txt")
 routes_dict = routes("./routes_out.txt")
+end_2 = time.time()
+print(f"Egyéb betöltés: {end_2 - start_2}")
 
 
+start_3 = time.time()
+path = dijkstra(G, '008280', '009684', 8*3600)
+end_3 = time.time()
+print(f"Dijkstra: {end_3-start_3}")
 
-path = dijkstra(G, '008056', '008324', 43000)
+start_4 = time.time()
+#kb 0.001 mp futásidő
 pretty_path(path[0])
+end_4 = time.time()
+print(f"Kiírás: {end_4-start_4}")
+
+end_0 = time.time()
+print(f"Egész algoritmus futásideje: {end_0-start_0} mp")
+print(f"Összeg: {end_1-start_1 + end_2-start_2+end_3-start_3+end_4-start_4} mp")
