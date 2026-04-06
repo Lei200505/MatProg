@@ -27,14 +27,6 @@ def stops(fajl):
             stop_id, name = line.strip().split(": ")
             stops_dict[stop_id] = name
     return stops_dict
-#Járatszamok betöltése
-def routes(fajl):
-    r_dict = {}
-    with open(fajl, "r", encoding="utf-8") as f:
-        for line in f:
-            r_id, r_name = line.strip().split(": ")
-            r_dict[r_id] = r_name
-    return r_dict
 
 
 #Algoritmus
@@ -127,7 +119,7 @@ def pretty_path(p):
             print(f"Séta {id_to_name(stops_dict,jarat[2])} megállóig [{math.ceil((jarat[-1][-1] - jarat[-1][0])/60)} perc]")
         #járattípusok szerint
         else:
-            print(f"{id_to_name(routes_dict, jarat[3])}: {id_to_name(stops_dict, jarat[0])} megállótól {id_to_name(stops_dict, jarat[2])} megállóig  [{math.ceil((jarat[-1][-1] - jarat[-1][0])/60)} perc]")
+            print(f"{id_to_name(routes_dict, jarat[3])} {transport_conversion(jarat[4])} : {id_to_name(stops_dict, jarat[0])} megállótól {id_to_name(stops_dict, jarat[2])} megállóig  [{math.ceil((jarat[-1][-1] - jarat[-1][0])/60)} perc]")
 def pretty_time(t):
     h = t // 3600
     m = (t % 3600) // 60
@@ -135,6 +127,26 @@ def pretty_time(t):
     return f"{h:02d}:{m:02d}:{s:02d}"     
 def id_to_name(di, id):
     return di[id]
+#Járatszamok betöltése
+def routes(fajl):
+    r_dict = {}
+    with open(fajl, "r", encoding="utf-8") as f:
+        for line in f:
+            r_id, r_name = line.strip().split(": ")
+            r_dict[r_id] = r_name
+    return r_dict
+def transport_conversion(id):
+    if id == 3:
+        return "busz"
+    if id == 0:
+        return "villamos"
+    if id == 11:
+        return "trolibusz"
+    if id == 109:
+        return "hév"
+    if id == 1:
+        return "metró"
+
 
 #Nem kell
 #def kiiras(p):
