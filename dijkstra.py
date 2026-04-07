@@ -85,6 +85,14 @@ def dijkstra(graph, start, end, start_time):
                         p[v] = [u, v, None, "TRANSFER", "TRANSFER", (K[u], duration)]
     #alg_end = time.time()
     #print(f"Az algoritmus futásideje: {alg_end - alg_start}")
+
+    #balint: ezt en irtam bele, hogy ideiglenesen tudjam tesztelni graph_viz.py-t. amikor az egesz script egy fajl lesz mar nem kell
+    #with open(r"C:\Users\Lenovo\Desktop\matprogcsom\grafepites\p.txt", "w") as f:
+    #    f.write(str(p))
+    #path = reconstruct_path(p, start, end)
+    #with open(r"C:\Users\Lenovo\Desktop\matprogcsom\grafepites\path.txt", "w") as f:
+    #    f.write(str(path))
+    
     return (reconstruct_path(p, start, end), p)
 # Legrövidebb út rekonstruálása a szülőkkel
 def reconstruct_path(p, start, end):
