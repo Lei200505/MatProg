@@ -4,7 +4,9 @@ stop_list = ['Örs vezér tere M+H, déli tárolótér', 'Kőbánya alsó vasút
 
 import tkinter as tk
 from tkinter import ttk
-#from unidecode import unidecode
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from unidecode import unidecode
 
 root = tk.Tk()
 root.title("Utazástervező")
@@ -52,8 +54,7 @@ def filloutto(event):
         tobool = True
     enable(event)
 
-#a lista szűrése a keresőmezőbe beírt szöveg alapján (kezdőpont) + unidecode
-'''
+#a lista szűrése a keresőmezőbe beírt szöveg alapján (kezdőpont)
 def filterfro(event):
     global frobool
     frobool = False
@@ -67,25 +68,8 @@ def filterfro(event):
                 data.append(i)
     update_fro(data)
     enable(event)
-'''
-#a lista szűrése a keresőmezőbe beírt szöveg alapján (kezdőpont) - unidecode, mert nem fut a gépemen
 
-def filterfro(event):
-    global frobool
-    frobool = False
-    inp = fro.get()
-    if inp == "":
-        data = stop_list
-    else:
-        data = []
-        for i in stop_list:
-            if inp.lower() in i.lower():
-                data.append(i)
-    update_fro(data)
-    enable(event)
-
-#a lista szűrése a keresőmezőbe beírt szöveg alapján (végpont) + unidecode
-'''
+#a lista szűrése a keresőmezőbe beírt szöveg alapján (végpont)
 def filterto(event):
     global tobool
     tobool = False
@@ -99,29 +83,19 @@ def filterto(event):
                 data.append(i)
     update_to(data)
     enable(event)
-'''
-#a lista szűrése a keresőmezőbe beírt szöveg alapján (végpont) - unidecode, mert nem futtatja a gépem
-def filterto(event):
-    global tobool
-    tobool = False
-    inp = to.get()
-    if inp == "":
-        data = stop_list
-    else:
-        data = []
-        for i in stop_list:
-            if inp.lower() in i.lower():
-                data.append(i)
-    update_to(data)
-    enable(event)
+
 
 #a gomb megnyomására véghezvitt függvény (Dijkstra)
 def endpoints():
     origin = [key for key, val in stop_dict.items() if val == fro.get()][0]
     destination = [key for key, val in stop_dict.items() if val == to.get()][0]
     seconds = 3600*int(hr.get()) + 60*int(min.get())
-    btnlabel = tk.Label(root, text=origin + " és " + destination + " és " + f'{seconds}')
-    btnlabel.grid(row=5, column=0, columnspan=3)
+    #out = dijkstra(origin, destination, seconds)
+    #btnlabel = tk.Label(root, text=out)
+    #btnlabel.grid(row=5, column=0, columnspan=3)
+    fig, ax = plt.subplots()
+    canvas = FigureCanvasTkAgg(fig, master = root)
+    canvas.get_tk_widget().grid(row=0,column=3,rowspan=4)
 
 lbl1 = tk.Label(root, width=30, text="Honnan szeretnél utazni?", font=("Courier", 18), bg="purple", fg="white")
 lbl1.grid(row=0, column=0)
@@ -160,6 +134,8 @@ minsopt.grid(row=3, column=2)
 
 terv = tk.Button(root, width=60, text="Tervezés", font=("Courier", 18), bg="purple", fg="white", command=endpoints, state="disabled")
 terv.grid(row=4, column=0, columnspan=3)
+
+
 
 update_fro(stop_list)
 update_to(stop_list)
