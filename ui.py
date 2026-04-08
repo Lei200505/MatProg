@@ -11,7 +11,6 @@ from unidecode import unidecode
 root = tk.Tk()
 root.title("Utazástervező")
 root.iconbitmap("busicon.ico")
-root.resizable(True,True)
 
 frobool = False
 tobool = False
