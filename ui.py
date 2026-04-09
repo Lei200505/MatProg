@@ -91,18 +91,17 @@ def filterto(event):
     update_to(data)
     enable(event)
 
-
 #a gomb megnyomására véghezvitt függvény (Dijkstra)
 def endpoints():
     origin = [key for key, val in stop_dict.items() if val == fro.get()][0]
     destination = [key for key, val in stop_dict.items() if val == to.get()][0]
     seconds = 3600*int(hr.get()) + 60*int(min.get())
     #out = dijkstra(origin, destination, seconds)
-    #btnlabel = tk.Label(root, text=out)
-    #btnlabel.grid(row=5, column=0, columnspan=3, sticky="nsew")
+    #btnlabel = tk.Label(root, width=30, text=out, font=("Courier", 18), bg="white", fg="purple")
+    #btnlabel.grid(row=3, column=3, rowspan=2, sticky="nsew")
     fig, ax = plt.subplots()
     canvas = FigureCanvasTkAgg(fig, master = root)
-    canvas.get_tk_widget().grid(row=0,column=3,rowspan=4, sticky="nsew")
+    canvas.get_tk_widget().grid(row=0,column=3,rowspan=3, sticky="nsew")
 
 lbl1 = tk.Label(root, width=30, text="Honnan szeretnél utazni?", font=("Courier", 18), bg="purple", fg="white")
 lbl1.grid(row=0, column=0, sticky="nsew")
