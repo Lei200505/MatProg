@@ -10,14 +10,10 @@ def graf_betoltes(fajl, fajl_nighttime, t):
     #Amennyiben este 10 után indulunk csak az este 22:00-05:00 közötti járatokat nézzük
     #Így könnyebb a napváltást implementálni az algoritmusban
     
-    
-    #start = time.time() <-- más a függvény futása mint ez
     if 79200 < t <  86400:
         fajl = fajl_nighttime
     with open(fajl, "rb") as f:
         data = pickle.load(f)
-    #end = time.time()
-    #print("A gráf betöltése:", end - start, "másodperc")
     return nx.node_link_graph(data)
 # Megállók betöltése
 def stops(fajl):
@@ -27,21 +23,27 @@ def stops(fajl):
             stop_id, name = line.strip().split(": ")
             stops_dict[stop_id] = name
     return stops_dict
+#Járatszamok betöltése
+def routes(fajl):
+    r_dict = {}
+    with open(fajl, "r", encoding="utf-8") as f:
+        for line in f:
+            r_id, r_name = line.strip().split(": ")
+            r_dict[r_id] = r_name
+    return r_dict
 
 
 #Algoritmus
 def dijkstra(graph, start, end, start_time):
-    #alg_start = time.time()
     #Inicializáció
     vege = False
     
     not_visited = set(graph.nodes()) - {start}
-    visited = set([start])
-    #esetleg heapq is jo lehet 
+    visited = set([start]) 
     K = {start: start_time}
     
     
-    #[elindulasi csucs, aktualis csucs, None (key), jarat szama, jarat tipusa, (indulasi ido, utazasi ido)]
+    #[elindulási csúcs, aktuális csúcs, None (key), járat száma, járat típusa, (indulási idő, utazási idő)]
     p = {start: [start, start, None, None, None, (start_time, 0)]} 
     
     
@@ -83,8 +85,6 @@ def dijkstra(graph, start, end, start_time):
                         visited.add(v)
                         not_visited = not_visited - {v}
                         p[v] = [u, v, None, "TRANSFER", "TRANSFER", (K[u], duration)]
-    #alg_end = time.time()
-    #print(f"Az algoritmus futásideje: {alg_end - alg_start}")
 
     #balint: ezt en irtam bele, hogy ideiglenesen tudjam tesztelni graph_viz.py-t. amikor az egesz script egy fajl lesz mar nem kell
     #with open(r"C:\Users\Lenovo\Desktop\matprogcsom\grafepites\p.txt", "w") as f:
@@ -96,6 +96,7 @@ def dijkstra(graph, start, end, start_time):
     return (reconstruct_path(p, start, end), p)
 # Legrövidebb út rekonstruálása a szülőkkel
 def reconstruct_path(p, start, end):
+    # parent szerint visszafejtjük az utat a végétől, amíg elérünk a kiindulási pontba
     path = []
     current = end
     while current != start:
@@ -111,23 +112,36 @@ def pretty_path(p):
     #Inicializálás
     #[elindulási csúcs, [köztes megállók], leszállási csúcs, járat száma, járat típusa, [elindulási idő, köztes megallók érkezési ideje, érkezési idő]]
     pretty = [ [p[1][0], [], p[1][1], p[1][3], p[1][4], [p[1][-1][0], p[1][-1][0]+p[1][-1][1]] ] ]
+    
+    #Végigiterálunk az éleken
     for i in range(2, len(p)):
+        # Ha az előző élen ugyanazzal a járművel mentünk, akkor úgy vesszük, hogy ezek egy járathoz tartoznak
         if p[i][3] == p[i-1][3]:
-            pretty[-1][1].append(p[i][0])
-            pretty[-1][2] = p[i][1]
-            pretty[-1][-1][-1] = p[i][-1][0]
-            pretty[-1][-1].append(p[i][-1][0]+p[i][-1][1])
+            pretty[-1][1].append(p[i][0]) #él kezdőállomását hozzáadjuk a köztes megállókhoz 
+            pretty[-1][2] = p[i][1] #a végállomást a járathoz átállítjuk az új él végpontjába
+            pretty[-1][-1][-1] = p[i][-1][0] # Indulási idejét az élnek kicseréljük a menetrendben az eddigi végére
+            pretty[-1][-1].append(p[i][-1][0]+p[i][-1][1]) #és a beérkezést a végére rakjuk
+        # Különben új járatra szállunk
         else:
             pretty.append([p[i][0], [], p[i][1], p[i][3], p[i][4], [p[i][-1][0], p[i][-1][0]+p[i][-1][1]]])
 
     
     #Kiíratás
     for jarat in pretty:
+        # Séta esetén
         if jarat[3] == "TRANSFER":
-            print(f"Séta {id_to_name(stops_dict,jarat[2])} megállóig [{math.ceil((jarat[-1][-1] - jarat[-1][0])/60)} perc]")
-        #járattípusok szerint
+            print(f"Séta {id_to_name(stops_dict,jarat[2])} megállóig [{math.ceil((jarat[-1][-1] - jarat[-1][0])/60)} perc] "
+                  f"Érkezés : {pretty_time(jarat[-1][-1])}")
+        
+        # Járattípusok szerint
         else:
-            print(f"{id_to_name(routes_dict, jarat[3])} {transport_conversion(jarat[4])} : {id_to_name(stops_dict, jarat[0])} megállótól {id_to_name(stops_dict, jarat[2])} megállóig  [{math.ceil((jarat[-1][-1] - jarat[-1][0])/60)} perc]")
+            print(f"{id_to_name(routes_dict, jarat[3])} {transport_conversion(jarat[4])} : {id_to_name(stops_dict, jarat[0])} megállótól "
+                  f"{id_to_name(stops_dict, jarat[2])} megállóig  [{math.ceil((jarat[-1][-1] - jarat[-1][0])/60)} perc]")
+            
+            print(f"\t -{id_to_name(stops_dict, jarat[0])} - {pretty_time(jarat[-1][0])}")
+            for megallo in range(len(jarat[1])):
+                print(f"\t -{id_to_name(stops_dict, jarat[1][megallo])} - {pretty_time(jarat[-1][megallo+1])}")
+            print(f"\t -{id_to_name(stops_dict, jarat[2])} - {pretty_time(jarat[-1][-1])}")
 def pretty_time(t):
     h = t // 3600
     m = (t % 3600) // 60
@@ -135,14 +149,6 @@ def pretty_time(t):
     return f"{h:02d}:{m:02d}:{s:02d}"     
 def id_to_name(di, id):
     return di[id]
-#Járatszamok betöltése
-def routes(fajl):
-    r_dict = {}
-    with open(fajl, "r", encoding="utf-8") as f:
-        for line in f:
-            r_id, r_name = line.strip().split(": ")
-            r_dict[r_id] = r_name
-    return r_dict
 def transport_conversion(id):
     if id == 3:
         return "busz"
