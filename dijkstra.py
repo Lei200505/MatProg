@@ -33,6 +33,7 @@ def routes(fajl):
     return r_dict
 
 
+
 #Algoritmus
 def dijkstra(graph, start, end, start_time):
     #Inicializáció
@@ -106,6 +107,7 @@ def reconstruct_path(p, start, end):
     return path[::-1]
 
 
+
 #Az út összehúzása járatok szerint
 #p[i] =[elindulasi csúcs, aktuáli csúcs, None (key), járat szama, járat típusa, (indulási idő, utazási idő)]
 def pretty_path(p):
@@ -127,28 +129,34 @@ def pretty_path(p):
 
     
     #Kiíratás
+    print(f"Teljes idő: {math.ceil((pretty[-1][-1][-1] - pretty[0][-1][0])/60)} perc")
+    print(f"  Indulás: {pretty_time(pretty[0][-1][0])}")
+    print(f"  Érkezés: {pretty_time(pretty[-1][-1][-1])} \n")
+    
+    
     for jarat in pretty:
         # Séta esetén
         if jarat[3] == "TRANSFER":
-            print(f"Séta {id_to_name(stops_dict,jarat[2])} megállóig [{math.ceil((jarat[-1][-1] - jarat[-1][0])/60)} perc] "
+            print(f"Séta {stops_dict[jarat[2]]} megállóig [{math.ceil((jarat[-1][-1] - jarat[-1][0])/60)} perc] "
                   f"Érkezés : {pretty_time(jarat[-1][-1])}")
         
         # Járattípusok szerint
         else:
-            print(f"{id_to_name(routes_dict, jarat[3])} {transport_conversion(jarat[4])} : {id_to_name(stops_dict, jarat[0])} megállótól "
-                  f"{id_to_name(stops_dict, jarat[2])} megállóig  [{math.ceil((jarat[-1][-1] - jarat[-1][0])/60)} perc]")
+            print(f"{routes_dict[jarat[3]]} {transport_conversion(jarat[4])} : {stops_dict[jarat[0]]} megállótól "
+                  f"{stops_dict[jarat[2]]} megállóig  [{math.ceil((jarat[-1][-1] - jarat[-1][0])/60)} perc]")
             
-            print(f"\t -{id_to_name(stops_dict, jarat[0])} - {pretty_time(jarat[-1][0])}")
+            print(f"\t -{stops_dict[jarat[0]]} - {pretty_time(jarat[-1][0])}")
             for megallo in range(len(jarat[1])):
-                print(f"\t -{id_to_name(stops_dict, jarat[1][megallo])} - {pretty_time(jarat[-1][megallo+1])}")
-            print(f"\t -{id_to_name(stops_dict, jarat[2])} - {pretty_time(jarat[-1][-1])}")
+                print(f"\t -{stops_dict[jarat[1][megallo]]} - {pretty_time(jarat[-1][megallo+1])}")
+            print(f"\t -{stops_dict[jarat[2]]} - {pretty_time(jarat[-1][-1])}")
 def pretty_time(t):
     h = t // 3600
     m = (t % 3600) // 60
     s = t % 60
-    return f"{h:02d}:{m:02d}:{s:02d}"     
-def id_to_name(di, id):
-    return di[id]
+    if s != 0:
+        return f"{h:02d}:{m:02d}:{s:02d}"  
+    else:
+        return f"{h:02d}:{m:02d}"
 def transport_conversion(id):
     if id == 3:
         return "busz"
@@ -162,39 +170,29 @@ def transport_conversion(id):
         return "metró"
 
 
-#Nem kell
-#def kiiras(p):
-#    for step in p:
-#        print(f"Indulás-Érkezés: {pretty_time(step[5][0])}-{pretty_time(step[5][0] + step[5][1])}, "
-#              f"járat:{step[3]} (járattípus: {step[4]}) - {step[1]}")
 
-
-start_0 = time.time()
 start_1 = time.time()
 source = "budapest.pkl"
 source_night = "night_budapest.pkl"
 G = graf_betoltes(source, source_night, time.time())
 end_1 = time.time()
-print(f"Gráf betöltése: {end_1-start_1}")
 
 start_2 = time.time()
 stops_dict = stops("stops_out.txt")
 routes_dict = routes("./routes_out.txt")
 end_2 = time.time()
-print(f"Egyéb betöltés: {end_2 - start_2}")
-
 
 start_3 = time.time()
 path = dijkstra(G, '008280', '009684', 8*3600)
 end_3 = time.time()
-print(f"Dijkstra: {end_3-start_3}")
 
 start_4 = time.time()
 #kb 0.001 mp futásidő
 pretty_path(path[0])
 end_4 = time.time()
-print(f"Kiírás: {end_4-start_4}")
 
-end_0 = time.time()
-print(f"Egész algoritmus futásideje: {end_0-start_0} mp")
-print(f"Összeg: {end_1-start_1 + end_2-start_2+end_3-start_3+end_4-start_4} mp")
+print(f"Gráf betöltése: {end_1-start_1}")
+print(f"Egyéb betöltés: {end_2 - start_2}")
+print(f"Dijkstra: {end_3-start_3}")
+print(f"Kiírás: {end_4-start_4}")
+print(f"Egész algoritmus futásideje: {end_4-start_1} mp")
