@@ -11,6 +11,13 @@ from unidecode import unidecode
 root = tk.Tk()
 root.title("Utazástervező")
 root.iconbitmap("busicon.ico")
+root.minsize(300,200)
+
+#grid átméretezhetősége
+for i in range(6):
+    root.grid_rowconfigure(i, weight=1)
+for i in range(4):
+    root.grid_columnconfigure(i, weight=1)
 
 frobool = False
 tobool = False
@@ -92,48 +99,48 @@ def endpoints():
     seconds = 3600*int(hr.get()) + 60*int(min.get())
     #out = dijkstra(origin, destination, seconds)
     #btnlabel = tk.Label(root, text=out)
-    #btnlabel.grid(row=5, column=0, columnspan=3)
+    #btnlabel.grid(row=5, column=0, columnspan=3, sticky="nsew")
     fig, ax = plt.subplots()
     canvas = FigureCanvasTkAgg(fig, master = root)
-    canvas.get_tk_widget().grid(row=0,column=3,rowspan=4)
+    canvas.get_tk_widget().grid(row=0,column=3,rowspan=4, sticky="nsew")
 
 lbl1 = tk.Label(root, width=30, text="Honnan szeretnél utazni?", font=("Courier", 18), bg="purple", fg="white")
-lbl1.grid(row=0, column=0)
+lbl1.grid(row=0, column=0, sticky="nsew")
 
 fro = tk.Entry(root, width=30, font=("Courier", 18), fg="purple")
-fro.grid(row=1, column=0)
+fro.grid(row=1, column=0, sticky="nsew")
 
 frolist = tk.Listbox(root, width=30, font=("Courier", 18), fg="purple", exportselection=False)
-frolist.grid(row=2, column=0)
+frolist.grid(row=2, column=0, sticky="nsew")
 
 lbl2 = tk.Label(root, width=30, text="Hova szeretnél utazni?", font=("Courier", 18), bg="purple", fg="white")
-lbl2.grid(row=0, column=1, columnspan=2)
+lbl2.grid(row=0, column=1, columnspan=2, sticky="nsew")
 
 to = tk.Entry(root, width=30, font=("Courier", 18), fg="purple")
-to.grid(row=1, column=1, columnspan=2)
+to.grid(row=1, column=1, columnspan=2, sticky="nsew")
 
 tolist = tk.Listbox(root, width=30, font=("Courier", 18), fg="purple", exportselection=False)
-tolist.grid(row=2, column=1, columnspan=2)
+tolist.grid(row=2, column=1, columnspan=2, sticky="nsew")
 
 lbl3 = tk.Label(root, width=30, text="Kezdő időpont:", font=("Courier", 18), bg="purple", fg="white")
-lbl3.grid(row=3, column=0)
+lbl3.grid(row=3, column=0, sticky="nsew")
 
 hr = tk.StringVar(root)
 hr.set("00")
 hours = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23']
 hoursopt = ttk.Combobox(root, values=hours, textvariable=hr, state="readonly")
 hoursopt.configure(width=4, font=("Courier", 18), background = "white", foreground="purple", justify="center")
-hoursopt.grid(row=3, column=1)
+hoursopt.grid(row=3, column=1, sticky="nsew")
 
 min = tk.StringVar(root)
 min.set("00")
 mins = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59']
 minsopt = ttk.Combobox(root, values=mins, textvariable=min, state="readonly")
 minsopt.configure(width=4, font=("Courier", 18), background = "white", foreground="purple", justify="center")
-minsopt.grid(row=3, column=2)
+minsopt.grid(row=3, column=2, sticky="nsew")
 
 terv = tk.Button(root, width=60, text="Tervezés", font=("Courier", 18), bg="purple", fg="white", command=endpoints, state="disabled")
-terv.grid(row=4, column=0, columnspan=3)
+terv.grid(row=4, column=0, columnspan=3, sticky="nsew")
 
 
 
