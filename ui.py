@@ -116,12 +116,23 @@ def endpoints():
     origin = [key for key, val in stops_dict.items() if val == fro.get()][0]
     destination = [key for key, val in stops_dict.items() if val == to.get()][0]
     seconds = 3600*int(hr.get()) + 60*int(min.get())
-    labelout = tk.Toplevel(root)
-    labelout.title("Útvonal")
+    
+    
     path = dijkstra.dijkstra(G, origin, destination, seconds)
     out = dijkstra.pretty_path(path[0], stops_dict=stops_dict, routes_dict=routes_dict)
-    btnlabel = tk.Label(labelout, text=out, justify='left' , font=("Courier", 18), bg="white", fg="purple")
-    btnlabel.pack()
+    
+    labelout = tk.Toplevel(root)
+    labelout.title("Útvonal")
+    
+    header = tk.Label(labelout, text="Tervezett útvonal", 
+                  font=("Courier", 16, "bold"), bg="purple", fg="white")
+    header.pack(fill="x", pady=(0,10))
+    textbox = tk.Text(labelout, font=("Courier", 12), fg="purple", 
+                  bg="white", padx=10, pady=10, wrap="word", width=60, height=20)
+    textbox.insert("1.0", out)
+    textbox.config(state="disabled")
+    textbox.pack(padx=10, pady=10)
+    
     plotout = tk.Toplevel(root)
     plotout.title("Térkép")
     fig, ax = plt.subplots()
