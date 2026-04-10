@@ -5,8 +5,6 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from unidecode import unidecode
 import dijkstra
 import time
-
-import io
 from contextlib import redirect_stdout
 
 source = "budapest.pkl"
@@ -15,8 +13,6 @@ G = dijkstra.graf_betoltes(source, source_night, time.time())
 stops_dict = dijkstra.stops("stops_out.txt")
 stop_list = list(stops_dict.values())
 routes_dict = dijkstra.routes("./routes_out.txt")
-
-
 
 root = tk.Tk()
 root.title("Utazástervező")
@@ -122,16 +118,17 @@ def endpoints():
     seconds = 3600*int(hr.get()) + 60*int(min.get())
     labelout = tk.Toplevel(root)
     labelout.title("Útvonal")
-    #out = dijkstra(origin, destination, seconds)
-    #btnlabel = tk.Label(labelout, width=30, text=out, font=("Courier", 18), bg="white", fg="purple")
-    #btnlabel.pack()
+    path = dijkstra.dijkstra(G, origin, destination, seconds)
+    out = dijkstra.pretty_path(path[0], stops_dict=stops_dict, routes_dict=routes_dict)
+    btnlabel = tk.Label(labelout, text=out, justify='left' , font=("Courier", 18), bg="white", fg="purple")
+    btnlabel.pack()
     plotout = tk.Toplevel(root)
     plotout.title("Térkép")
     fig, ax = plt.subplots()
     canvas = FigureCanvasTkAgg(fig, master = plotout)
     canvas.get_tk_widget().pack()
 
-lbl1 = tk.Label(root, width=30, text="Honnan szeretnél utazni?", font=("Courier", 18), bg="purple", fg="white")
+lbl1 = tk.Label(root, width=30, text="Honnan szeretnél utazni?", font=("Courier", 11), bg="purple", fg="white")
 lbl1.grid(row=0, column=0, sticky="nsew")
 
 fro = tk.Entry(root, width=30, font=("Courier", 18), fg="purple")
