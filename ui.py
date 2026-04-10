@@ -4,13 +4,14 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from unidecode import unidecode
 import dijkstra
+import graph_viz
 import time
 from contextlib import redirect_stdout
 
 source = "budapest.pkl"
 source_night = "night_budapest.pkl"
 G = dijkstra.graf_betoltes(source, source_night, time.time())
-stops_dict = dijkstra.stops("stops_out.txt")
+stops_dict = dijkstra.stops("./stops_out.txt")
 stop_list = list(stops_dict.values())
 routes_dict = dijkstra.routes("./routes_out.txt")
 
@@ -27,6 +28,8 @@ for i in range(4):
 
 frobool = False
 tobool = False
+
+halozat_rajz = graph_viz.GraphViz(G, r"./budapest_data")
 
 #a tervezés gomb feloldása, miután kezdő-és végpont ki lett választva
 def enable(*args):
@@ -97,19 +100,21 @@ def filterto(event):
     update_to(data)
     enable(event)
 
-def graph_ui():
-    graphout = tk.Toplevel(root)
-    graphout.title("Térkép")
-    fig, ax = plt.subplots()
-    canvas = FigureCanvasTkAgg(fig, master = graphout)
-    canvas.get_tk_widget().pack()
-
-def night_graph_ui():
-    nightgraphout = tk.Toplevel(root)
-    nightgraphout.title("Térkép (éjszakai)")
-    fig, ax = plt.subplots()
-    canvas = FigureCanvasTkAgg(fig, master = nightgraphout)
-    canvas.get_tk_widget().pack()
+#def graph_ui():
+#    graphout = tk.Toplevel(root)
+#    graphout.title("Térkép")
+#    ax.clear()
+#    fig, ax = halozat_rajz.viz()
+#    canvas = FigureCanvasTkAgg(fig, master = graphout)
+#    canvas.draw()
+#    canvas.get_tk_widget().pack()
+#
+#def night_graph_ui():
+#    nightgraphout = tk.Toplevel(root)
+#    nightgraphout.title("Térkép (éjszakai)")
+#    fig, ax = plt.subplots()
+#    canvas = FigureCanvasTkAgg(fig, master = nightgraphout)
+#    canvas.get_tk_widget().pack()
 
 #a gomb megnyomására véghezvitt függvény (Dijkstra)
 def endpoints():
@@ -134,8 +139,10 @@ def endpoints():
     
     plotout = tk.Toplevel(root)
     plotout.title("Térkép")
-    fig, ax = plt.subplots()
+    #ax.clear()
+    fig, ax = halozat_rajz.fenyo_viz(path[1], origin, destination, path[0])
     canvas = FigureCanvasTkAgg(fig, master = plotout)
+    canvas.draw()
     canvas.get_tk_widget().pack()
 
 lbl1 = tk.Label(root, width=30, text="Honnan szeretnél utazni?", font=("Courier", 18), bg="purple", fg="white")
@@ -176,11 +183,11 @@ minsopt.grid(row=3, column=2, sticky="nsew")
 terv = tk.Button(root, width=60, text="Tervezés", font=("Courier", 18), bg="purple", fg="white", command=endpoints, state="disabled")
 terv.grid(row=4, column=0, columnspan=3, sticky="nsew")
 
-btn_graph = tk.Button(root, width=30, text="Térkép", font=("Courier", 18), bg="purple", fg="white", command=graph_ui)
-btn_graph.grid(row=5, column=0, columnspan=1, sticky="nsew")
-
-btn_night_graph = tk.Button(root, width=30, text="Térkép (éjszakai)", font=("Courier", 18), bg="purple", fg="white", command=night_graph_ui)
-btn_night_graph.grid(row=5, column=1, columnspan=2, sticky="nsew")
+#btn_graph = tk.Button(root, width=30, text="Térkép", font=("Courier", 18), bg="purple", fg="white", command=graph_ui)
+#btn_graph.grid(row=5, column=0, columnspan=1, sticky="nsew")
+#
+#btn_night_graph = tk.Button(root, width=30, text="Térkép (éjszakai)", font=("Courier", 18), bg="purple", fg="white", command=night_graph_ui)
+#btn_night_graph.grid(row=5, column=1, columnspan=2, sticky="nsew")
 update_fro(stop_list)
 update_to(stop_list)
 

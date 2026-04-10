@@ -155,7 +155,7 @@ class Graph:
         print("File saved successfully at:", path)
 
 
-source = "budapest_gtfs"
+source = "budapest_data"
 out_loc = "."
 graph = Graph(source)
 graph.save_graph(out_loc)

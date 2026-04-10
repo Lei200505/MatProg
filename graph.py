@@ -195,7 +195,7 @@ class Graph:
             pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
         print("File saved successfully at:", path)
 
-source = "budapest_gtfs"
+source = "budapest_data"
 out_loc = "."
 g = Graph(source)
 g.save_graph(out_loc)
