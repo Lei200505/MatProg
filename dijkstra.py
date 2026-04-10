@@ -1,4 +1,4 @@
-import numpy as np
+import csv
 import networkx as nx
 import pickle
 import time
@@ -88,13 +88,16 @@ def dijkstra(graph, start, end, start_time):
                         p[v] = [u, v, None, "TRANSFER", "TRANSFER", (K[u], duration)]
 
     #balint: ezt en irtam bele, hogy ideiglenesen tudjam tesztelni graph_viz.py-t. amikor az egesz script egy fajl lesz mar nem kell
-    with open(r"C:\Users\Lenovo\Desktop\matprogcsom\grafepites\p.txt", "w") as f:
-        f.write(str(p))
-    path = reconstruct_path(p, start, end)
-    with open(r"C:\Users\Lenovo\Desktop\matprogcsom\grafepites\path.txt", "w") as f:
-        f.write(str(path))
+    #with open(r"C:\Users\Lenovo\Desktop\matprogcsom\grafepites\p.txt", "w") as f:
+    #    f.write(str(p))
+    #path = reconstruct_path(p, start, end)
+    #with open(r"C:\Users\Lenovo\Desktop\matprogcsom\grafepites\path.txt", "w") as f:
+    #    f.write(str(path))
     
-    return (reconstruct_path(p, start, end), p)
+    if not vege:
+        raise ValueError("Nincs út")
+    else:
+        return (reconstruct_path(p, start, end), p)
 # Legrövidebb út rekonstruálása a szülőkkel
 def reconstruct_path(p, start, end):
     # parent szerint visszafejtjük az utat a végétől, amíg elérünk a kiindulási pontba
@@ -183,13 +186,21 @@ if __name__ == "__main__":
 
     start_2 = time.time()
     stops_dict = stops(G)
-    print(G.edges("009459", data=True))
-    print(G.edges("004952", data=True))
-    routes_dict = routes("./routes_out.txt")
+    #print(G.edges("009459", data=True))
+    #print(G.edges("004952", data=True))
+    routes_dict = {}
+    with open("./budapest_data/routes.txt", encoding="utf-8", newline="") as f_in:
+        reader = csv.DictReader(f_in)
+        for line in reader:
+            routes_dict[line['route_id']] = line['route_short_name']
     end_2 = time.time()
 
     start_3 = time.time()
-    path = dijkstra(G, '008280', '009684', 8*3600)
+    print("Start benne van:", '006390' in G.nodes())
+    print("End benne van:", '009684' in G.nodes())
+        
+        
+    path = dijkstra(G, '006390', '009684', 8*3600)
     end_3 = time.time()
 
     start_4 = time.time()
