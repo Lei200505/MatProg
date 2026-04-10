@@ -192,7 +192,7 @@ if __name__ == "__main__":
 
     start_4 = time.time()
     #kb 0.001 mp futásidő
-    pretty_path(path[0], stops_dict=stops_dict, routes_dict=routes_dict)
+    print(pretty_path(path[0], stops_dict=stops_dict, routes_dict=routes_dict))
     end_4 = time.time()
 
     print(f"Gráf betöltése: {end_1-start_1}")
