@@ -117,7 +117,6 @@ def endpoints():
     destination = [key for key, val in stops_dict.items() if val == to.get()][0]
     seconds = 3600*int(hr.get()) + 60*int(min.get())
     
-    
     path = dijkstra.dijkstra(G, origin, destination, seconds)
     out = dijkstra.pretty_path(path[0], stops_dict=stops_dict, routes_dict=routes_dict)
     
@@ -182,7 +181,6 @@ btn_graph.grid(row=5, column=0, columnspan=1, sticky="nsew")
 
 btn_night_graph = tk.Button(root, width=30, text="Térkép (éjszakai)", font=("Courier", 18), bg="purple", fg="white", command=night_graph_ui)
 btn_night_graph.grid(row=5, column=1, columnspan=2, sticky="nsew")
-
 update_fro(stop_list)
 update_to(stop_list)
 
