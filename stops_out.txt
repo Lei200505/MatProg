@@ -288,6 +288,7 @@
 008597: Sport utca
 008598: Baross utca
 008605: Kolosy tér
+008607: Árpád utca
 008617: Pillangó utca
 008618: Puskás Ferenc Stadion
 008619: Keleti pályaudvar
@@ -298,6 +299,7 @@
 008624: Batthyány tér
 008625: Széll Kálmán tér
 008626: Déli pályaudvar
+008627: Kőérberek
 008642: Székesdűlő
 008643: Székesdűlő
 008644: Vízművek
@@ -532,6 +534,9 @@
 009381: Rózsa utca
 009382: Jávorfa utca
 009383: János utca
+009397: Széles utca
+009398: Petőfi Sándor utca
+009408: Széles utca
 009412: Karolina út
 009413: Ezredes utca
 009415: Sárfű utca
@@ -663,7 +668,9 @@
 009636: Kelenföldi autóbuszgarázs (kapu)
 009637: Óbudai autóbuszgarázs (Pomázi kapu)
 009638: Kőbányai garázs (Salgótarjáni kapu)
+009639: Kelenföld kocsiszín (Csóka kapu)
 009646: Angyalföld kocsiszín (Pozsonyi kapu)
+009647: Baross kocsiszín (Magdolna kapu)
 009652: Széchenyi út
 009659: Mélyfúró utca
 009667: Újbuda-központ M
@@ -708,7 +715,6 @@
 011322: Óbuda, Bogdáni út
 011325: Halászbástya (Schulek Frigyes lépcső)
 011327: Budaörsi Ipari és Technológiai Park
-011439: Ferencváros kocsiszín (kapu)
 011493: Baross kocsiszín (Baross kapu)
 011495: Kék Golyó utca
 011577: Soroksár, központi raktárak
@@ -775,7 +781,6 @@
 041140: Mázsa utca
 041173: Öv utca
 041209: Boráros tér H
-042790: Stefánia út
 042797: Bányató utca
 042933: Népliget M
 042934: Soroksár, BILK
@@ -861,6 +866,14 @@
 049597: BudaPart
 049784: Clark Ádám tér
 049785: Clark Ádám tér
+049892: Május 9. park
+049893: Sporttelep
+049894: Óbudai-sziget hajóállomás
+049895: Óbudai-sziget
+049896: Óbudai-sziget hajóállomás
+049897: Sporttelep
+049898: Május 9. park
+049900: Kaszásdűlő H
 049903: Mansfeld Péter park
 049914: Sörgyár
 050003: Cinkota H
@@ -875,6 +888,8 @@
 050185: Vecsés, Market Central Ferihegy
 050186: Vecsés, Market Central Ferihegy
 050187: Vecsés, Fő út
+050221: Károly király utca
+050222: Károly király utca
 050274: Kossuth Lajos tér M (Szemere utca)
 050279: Lomnici utca
 053532: Hajlat utca
@@ -1075,6 +1090,7 @@
 066856: Pagony utca
 066969: Zimonyi utca
 067002: Kelenföldi VB pályaudvar
+067215: Kápolna utca
 067335: Pesti út MOL kút
 067369: Bosnyák tér
 067511: Orgonás (Sárospatak út)
@@ -1108,7 +1124,6 @@
 072606: Szűcs utca
 072669: Takács utca
 072851: Maros utcai rendelőintézet
-072858: Kossuth Lajos tér M (Alkotmány utca)
 072934: Rudas Gyógyfürdő
 072935: Rudas Gyógyfürdő
 072938: CS/ Kossuth Lajos utca MOL
@@ -1165,6 +1180,7 @@
 084831: Biztató út / Szakács utca
 084946: Biztató út / Budapesti út
 085723: Lehel tér M (Lehel utca)
+085867: Zenélőkút
 086856: Nagyvárad tér M
 086857: Albert Flórián út
 086874: Vörösmarty Mihály utca
@@ -1587,7 +1603,6 @@
 218161: Miskolci utca / Erzsébet királyné útja
 218666: Budafok KSZ delta váltó (Belváros felé)
 218712: Savoya elágnál KSZ-be Budafok KSZ - Savo
-218726: Szent Gellért tér
 224240: Kondorosi út
 226468: Gubacsi út / Határ út
 226474: Erzsébet királyné útja / Róna utca
