@@ -5,8 +5,6 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from unidecode import unidecode
 import dijkstra
 import time
-
-import io
 from contextlib import redirect_stdout
 
 source = "budapest.pkl"
@@ -15,8 +13,6 @@ G = dijkstra.graf_betoltes(source, source_night, time.time())
 stops_dict = dijkstra.stops("stops_out.txt")
 stop_list = list(stops_dict.values())
 routes_dict = dijkstra.routes("./routes_out.txt")
-
-
 
 root = tk.Tk()
 root.title("Utazástervező")
@@ -120,18 +116,30 @@ def endpoints():
     origin = [key for key, val in stops_dict.items() if val == fro.get()][0]
     destination = [key for key, val in stops_dict.items() if val == to.get()][0]
     seconds = 3600*int(hr.get()) + 60*int(min.get())
+    
+    
+    path = dijkstra.dijkstra(G, origin, destination, seconds)
+    out = dijkstra.pretty_path(path[0], stops_dict=stops_dict, routes_dict=routes_dict)
+    
     labelout = tk.Toplevel(root)
     labelout.title("Útvonal")
-    #out = dijkstra(origin, destination, seconds)
-    #btnlabel = tk.Label(labelout, width=30, text=out, font=("Courier", 18), bg="white", fg="purple")
-    #btnlabel.pack()
+    
+    header = tk.Label(labelout, text="Tervezett útvonal", 
+                  font=("Courier", 16, "bold"), bg="purple", fg="white")
+    header.pack(fill="x", pady=(0,10))
+    textbox = tk.Text(labelout, font=("Courier", 12), fg="purple", 
+                  bg="white", padx=10, pady=10, wrap="word", width=60, height=20)
+    textbox.insert("1.0", out)
+    textbox.config(state="disabled")
+    textbox.pack(padx=10, pady=10)
+    
     plotout = tk.Toplevel(root)
     plotout.title("Térkép")
     fig, ax = plt.subplots()
     canvas = FigureCanvasTkAgg(fig, master = plotout)
     canvas.get_tk_widget().pack()
 
-lbl1 = tk.Label(root, width=30, text="Honnan szeretnél utazni?", font=("Courier", 18), bg="purple", fg="white")
+lbl1 = tk.Label(root, width=30, text="Honnan szeretnél utazni?", font=("Courier", 11), bg="purple", fg="white")
 lbl1.grid(row=0, column=0, sticky="nsew")
 
 fro = tk.Entry(root, width=30, font=("Courier", 18), fg="purple")
@@ -174,7 +182,6 @@ btn_graph.grid(row=5, column=0, columnspan=1, sticky="nsew")
 
 btn_night_graph = tk.Button(root, width=30, text="Térkép (éjszakai)", font=("Courier", 18), bg="purple", fg="white", command=night_graph_ui)
 btn_night_graph.grid(row=5, column=1, columnspan=2, sticky="nsew")
-
 update_fro(stop_list)
 update_to(stop_list)
 
