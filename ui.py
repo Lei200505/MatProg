@@ -138,7 +138,7 @@ def endpoints():
     canvas = FigureCanvasTkAgg(fig, master = plotout)
     canvas.get_tk_widget().pack()
 
-lbl1 = tk.Label(root, width=30, text="Honnan szeretnél utazni?", font=("Courier", 11), bg="purple", fg="white")
+lbl1 = tk.Label(root, width=30, text="Honnan szeretnél utazni?", font=("Courier", 18), bg="purple", fg="white")
 lbl1.grid(row=0, column=0, sticky="nsew")
 
 fro = tk.Entry(root, width=30, font=("Courier", 18), fg="purple")
