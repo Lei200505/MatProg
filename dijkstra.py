@@ -16,13 +16,13 @@ def graf_betoltes(fajl, fajl_nighttime, t):
         data = pickle.load(f)
     return nx.node_link_graph(data)
 # Megállók betöltése
-def stops(fajl):
+def stops(graph: nx.multidigraph):
     stops_dict = {}
-    with open(fajl, "r", encoding="utf-8") as f:
-        for line in f:
-            stop_id, name = line.strip().split(": ")
-            stops_dict[stop_id] = name
+    for node in graph.nodes():
+        stops_dict[node] = G.nodes()[node]["stop_name"]
     return stops_dict
+
+
 #Járatszamok betöltése
 def routes(fajl):
     r_dict = {}
@@ -182,7 +182,9 @@ if __name__ == "__main__":
     end_1 = time.time()
 
     start_2 = time.time()
-    stops_dict = stops("stops_out.txt")
+    stops_dict = stops(G)
+    print(G.edges("009459", data=True))
+    print(G.edges("004952", data=True))
     routes_dict = routes("./routes_out.txt")
     end_2 = time.time()
 

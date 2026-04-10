@@ -12,11 +12,13 @@ import csv
 source = "budapest.pkl"
 source_night = "night_budapest.pkl"
 G = dijkstra.graf_betoltes(source, source_night, time.time())
-with open("./budapest_data/stops.txt", encoding="utf-8", newline="") as f_in:
-    reader = csv.DictReader(f_in)
+def stop_dict_maker(graph):
     stops_dict = {}
-    for line in reader:
-        stops_dict[line['stop_id']] = line['stop_name']
+    for node in graph.nodes():
+        stops_dict[node] = G.nodes()[node]["stop_name"]
+    return stops_dict
+stops_dict = stop_dict_maker(G)
+
 stop_list = list(stops_dict.values())
 
 

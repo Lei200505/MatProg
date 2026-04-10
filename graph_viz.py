@@ -33,6 +33,7 @@ class GraphViz:
         nx.draw_networkx_edges(self.G, pos, edgelist=transfer_edges, edge_color = "gray", arrows = False, alpha=0.3)
 
         nx.draw_networkx_nodes(self.G, pos, node_size=2, node_color="#444444")
+        nx.draw_networkx_nodes(self.G, pos, nodelist=["F04517"], node_size=5, node_color="red")
         plt.axis("off")
         plt.show()
 
@@ -109,7 +110,7 @@ class GraphViz:
   
 source = "."
 gfts_source = "budapest_data"
-with open(f"{source}/budapest.pkl", "rb") as f:
+with open(f"{source}/night_budapest.pkl", "rb") as f:
     data = pickle.load(f)
 #
 G = nx.node_link_graph(data)

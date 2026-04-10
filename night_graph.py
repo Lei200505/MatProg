@@ -136,6 +136,21 @@ class Graph:
                 route_type=row.route_type,
                 departures=dep_list
             )
+        stop_name_map = dict(zip(self.stops["stop_id"], self.stops["stop_name"]))
+        nx.set_node_attributes(G, stop_name_map, name="stop_name")
+
+        remove = []
+        for node in G.nodes():
+            edges = list(G.out_edges(node, data=True))
+
+            if len(edges) ==0:
+                remove.append(node)
+                continue
+            
+            if all(data["route_type"]=="TRANSFER" for u, v, data in edges):
+                remove.append(node)
+
+        G.remove_nodes_from(remove)
         return G
     
     def save_graph(self, out_loc=None, fname = "night_budapest.pkl"):
@@ -153,6 +168,9 @@ class Graph:
         with open(path, "wb") as f:
             pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
         print("File saved successfully at:", path)
+
+        with open(os.path.join(out_loc, "night_budapest.json"), "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False)
 
 
 source = "budapest_data"
