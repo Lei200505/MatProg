@@ -7,13 +7,25 @@ import dijkstra
 import graph_viz
 import time
 from contextlib import redirect_stdout
+import csv
 
 source = "budapest.pkl"
 source_night = "night_budapest.pkl"
 G = dijkstra.graf_betoltes(source, source_night, time.time())
-stops_dict = dijkstra.stops("./stops_out.txt")
+with open("./budapest_data/stops.txt", encoding="utf-8", newline="") as f_in:
+    reader = csv.DictReader(f_in)
+    stops_dict = {}
+    for line in reader:
+        stops_dict[line['stop_id']] = line['stop_name']
 stop_list = list(stops_dict.values())
-routes_dict = dijkstra.routes("./routes_out.txt")
+
+
+with open("./budapest_data/routes.txt", encoding="utf-8", newline="") as f_in:
+    reader = csv.DictReader(f_in)
+    routes_dict = {}
+    for line in reader:
+        routes_dict[line['route_id']] = line['route_short_name']
+
 
 root = tk.Tk()
 root.title("Utazástervező")
