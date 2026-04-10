@@ -150,12 +150,12 @@ def endpoints():
     textbox.pack(padx=10, pady=10)
     
     plotout = tk.Toplevel(root)
-    plotout.title("Térkép")
+    #plotout.title("Térkép")
     #ax.clear()
     fig, ax = halozat_rajz.fenyo_viz(path[1], origin, destination, path[0])
-    canvas = FigureCanvasTkAgg(fig, master = plotout)
-    canvas.draw()
-    canvas.get_tk_widget().pack()
+    #canvas = FigureCanvasTkAgg(fig, master = plotout)
+    #canvas.draw()
+    #canvas.get_tk_widget().pack()
 
 lbl1 = tk.Label(root, width=30, text="Honnan szeretnél utazni?", font=("Courier", 18), bg="purple", fg="white")
 lbl1.grid(row=0, column=0, sticky="nsew")

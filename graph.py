@@ -3,6 +3,7 @@ import networkx as nx
 import pandas as pd
 from scipy.spatial import cKDTree
 import pickle
+import json
 import os
 
 class Graph:
@@ -172,6 +173,9 @@ class Graph:
                 route_type=row.route_type,
                 departures=dep_list
             )
+            
+        stop_name_map = dict(zip(self.stops["stop_id"], self.stops["stop_name"]))
+        nx.set_node_attributes(G, stop_name_map, name="stop_name")
         return G
     
     #elmentjuk a grafot egy .pkl-be
@@ -195,7 +199,10 @@ class Graph:
             pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
         print("File saved successfully at:", path)
 
-source = "budapest_data"
+        with open(os.path.join(out_loc, "budapest.json"), "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False)
+
+source = "./budapest_data"
 out_loc = "."
 g = Graph(source)
 g.save_graph(out_loc)
