@@ -1,5 +1,6 @@
 import numpy as np
 import networkx as nx
+import pandas as pd
 import pickle
 import time
 import math
@@ -26,12 +27,14 @@ def stops(graph: nx.multidigraph):
 #Járatszamok betöltése
 def routes(fajl):
     r_dict = {}
-    with open(fajl, "r", encoding="utf-8") as f:
-        for line in f:
-            r_id, r_name = line.strip().split(": ")
-            r_dict[r_id] = r_name
+    #with open(fajl, "r", encoding="utf-8") as f:
+    #    for line in f:
+    #        r_id, r_name = line.strip().split(": ")
+    #        r_dict[r_id] = r_name
+    r = pd.read_csv(fajl, encoding="utf-8", low_memory=False)
+    for _, row in r.iterrows():
+        r_dict[row["route_id"]] = row["route_short_name"]
     return r_dict
-
 
 
 #Algoritmus
@@ -185,11 +188,11 @@ if __name__ == "__main__":
     stops_dict = stops(G)
     print(G.edges("009459", data=True))
     print(G.edges("004952", data=True))
-    routes_dict = routes("./routes_out.txt")
+    routes_dict = routes("./budapest_data/routes.txt")
     end_2 = time.time()
 
     start_3 = time.time()
-    path = dijkstra(G, '008280', '009684', 8*3600)
+    path = dijkstra(G, 'F04517', '009684', 23*3600 + 57 * 60)
     end_3 = time.time()
 
     start_4 = time.time()
