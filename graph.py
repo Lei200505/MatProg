@@ -185,8 +185,8 @@ class Graph:
                 remove.append(node)
                 continue
             
-            if all(data["route_type"]=="TRANSFER" for u, v, data in edges):
-                remove.append(node)
+            #if all(data["route_type"]=="TRANSFER" for u, v, data in edges):
+            #    remove.append(node)
 
         G.remove_nodes_from(remove)
         return G
