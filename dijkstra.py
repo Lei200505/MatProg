@@ -100,6 +100,9 @@ def dijkstra(graph, start, end, start_time):
         return (reconstruct_path(p, start, end), p)
 # Legrövidebb út rekonstruálása a szülőkkel
 def reconstruct_path(p, start, end):
+    if len(p) == 1:
+        return p
+    
     # parent szerint visszafejtjük az utat a végétől, amíg elérünk a kiindulási pontba
     path = []
     current = end
@@ -114,6 +117,8 @@ def reconstruct_path(p, start, end):
 #Az út összehúzása járatok szerint
 #p[i] =[elindulasi csúcs, aktuáli csúcs, None (key), járat szama, járat típusa, (indulási idő, utazási idő)]
 def pretty_path(p, stops_dict, routes_dict):
+    if len(p) == 1:
+        return f"Ugyanaz a két megálló"
     #Inicializálás
     #[elindulási csúcs, [köztes megállók], leszállási csúcs, járat száma, járat típusa, [elindulási idő, köztes megallók érkezési ideje, érkezési idő]]
     pretty = [ [p[1][0], [], p[1][1], p[1][3], p[1][4], [p[1][-1][0], p[1][-1][0]+p[1][-1][1]] ] ]
@@ -178,38 +183,23 @@ def transport_conversion(id):
 
 if __name__ == "__main__":
     print("Teszt fut")
-    start_1 = time.time()
     source = "budapest.pkl"
     source_night = "night_budapest.pkl"
     G = graf_betoltes(source, source_night, time.time())
-    end_1 = time.time()
 
-    start_2 = time.time()
+
     stops_dict = stops(G)
-    #print(G.edges("009459", data=True))
-    #print(G.edges("004952", data=True))
     routes_dict = {}
     with open("./budapest_data/routes.txt", encoding="utf-8", newline="") as f_in:
         reader = csv.DictReader(f_in)
         for line in reader:
             routes_dict[line['route_id']] = line['route_short_name']
-    end_2 = time.time()
 
-    start_3 = time.time()
-    print("Start benne van:", '006390' in G.nodes())
-    print("End benne van:", '009684' in G.nodes())
-        
-        
-    path = dijkstra(G, '006390', '009684', 8*3600)
-    end_3 = time.time()
-
-    start_4 = time.time()
+    s = '009684'
+    t = '009684'
+    if s in G.nodes() and t in G.nodes():
+        path = dijkstra(G, s, t, 8*3600)
+    else:
+        print("Ezek egyike nincs benne a gráfban")
     #kb 0.001 mp futásidő
     print(pretty_path(path[0], stops_dict=stops_dict, routes_dict=routes_dict))
-    end_4 = time.time()
-
-    print(f"Gráf betöltése: {end_1-start_1}")
-    print(f"Egyéb betöltés: {end_2 - start_2}")
-    print(f"Dijkstra: {end_3-start_3}")
-    print(f"Kiírás: {end_4-start_4}")
-    print(f"Egész algoritmus futásideje: {end_4-start_1} mp")
