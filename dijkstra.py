@@ -182,10 +182,11 @@ def transport_conversion(id):
 
 
 if __name__ == "__main__":
+    t = 23*3600 + 57 * 60
     print("Teszt fut")
     source = "budapest.pkl"
     source_night = "night_budapest.pkl"
-    G = graf_betoltes(source, source_night, time.time())
+    G = graf_betoltes(source, source_night, 23*3600 + 57 * 60)
 
 
     stops_dict = stops(G)
@@ -198,7 +199,7 @@ if __name__ == "__main__":
     s = '009684'
     t = '009684'
     if s in G.nodes() and t in G.nodes():
-        path = dijkstra(G, s, t, 8*3600)
+        path = dijkstra(G, 'F04517', '009684', int(t))
     else:
         print("Ezek egyike nincs benne a gráfban")
     #kb 0.001 mp futásidő
