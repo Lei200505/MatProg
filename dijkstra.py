@@ -1,4 +1,4 @@
-import numpy as np
+import csv
 import networkx as nx
 import pandas as pd
 import pickle
@@ -7,12 +7,7 @@ import math
 
 #Adatok betöltése
 # Gráf betöltése
-def graf_betoltes(fajl, fajl_nighttime, t):
-    #Amennyiben este 10 után indulunk csak az este 22:00-05:00 közötti járatokat nézzük
-    #Így könnyebb a napváltást implementálni az algoritmusban
-    
-    if 79200 < t <  86400:
-        fajl = fajl_nighttime
+def graf_betoltes(fajl):
     with open(fajl, "rb") as f:
         data = pickle.load(f)
     return nx.node_link_graph(data)
@@ -20,22 +15,19 @@ def graf_betoltes(fajl, fajl_nighttime, t):
 def stops(graph: nx.multidigraph):
     stops_dict = {}
     for node in graph.nodes():
-        stops_dict[node] = G.nodes()[node]["stop_name"]
+        stops_dict[node] = graph.nodes()[node]["stop_name"]
     return stops_dict
 
 
 #Járatszamok betöltése
+
 def routes(fajl):
     r_dict = {}
-    #with open(fajl, "r", encoding="utf-8") as f:
-    #    for line in f:
-    #        r_id, r_name = line.strip().split(": ")
-    #        r_dict[r_id] = r_name
     r = pd.read_csv(fajl, encoding="utf-8", low_memory=False)
     for _, row in r.iterrows():
         r_dict[row["route_id"]] = row["route_short_name"]
     return r_dict
-
+    
 
 #Algoritmus
 def dijkstra(graph, start, end, start_time):
@@ -97,9 +89,15 @@ def dijkstra(graph, start, end, start_time):
     #with open(r"C:\Users\Lenovo\Desktop\matprogcsom\grafepites\path.txt", "w") as f:
     #    f.write(str(path))
     
-    return (reconstruct_path(p, start, end), p)
+    if not vege:
+        raise ValueError("Nincs út")
+    else:
+        return (reconstruct_path(p, start, end), p)
 # Legrövidebb út rekonstruálása a szülőkkel
 def reconstruct_path(p, start, end):
+    if len(p) == 1:
+        return p
+    
     # parent szerint visszafejtjük az utat a végétől, amíg elérünk a kiindulási pontba
     path = []
     current = end
@@ -114,6 +112,8 @@ def reconstruct_path(p, start, end):
 #Az út összehúzása járatok szerint
 #p[i] =[elindulasi csúcs, aktuáli csúcs, None (key), járat szama, járat típusa, (indulási idő, utazási idő)]
 def pretty_path(p, stops_dict, routes_dict):
+    if len(p) == 1:
+        return f"Ugyanaz a két megálló"
     #Inicializálás
     #[elindulási csúcs, [köztes megállók], leszállási csúcs, járat száma, járat típusa, [elindulási idő, köztes megallók érkezési ideje, érkezési idő]]
     pretty = [ [p[1][0], [], p[1][1], p[1][3], p[1][4], [p[1][-1][0], p[1][-1][0]+p[1][-1][1]] ] ]
@@ -177,31 +177,27 @@ def transport_conversion(id):
 
 
 if __name__ == "__main__":
+    t = 23*3600 + 57 * 60
     print("Teszt fut")
-    start_1 = time.time()
     source = "budapest.pkl"
     source_night = "night_budapest.pkl"
-    G = graf_betoltes(source, source_night, time.time())
-    end_1 = time.time()
-
-    start_2 = time.time()
-    stops_dict = stops(G)
-    print(G.edges("009459", data=True))
-    print(G.edges("004952", data=True))
+    G = graf_betoltes(source)
+    G_night = graf_betoltes(source_night)
     routes_dict = routes("./budapest_data/routes.txt")
-    end_2 = time.time()
 
-    start_3 = time.time()
-    path = dijkstra(G, 'F04517', '009684', 23*3600 + 57 * 60)
-    end_3 = time.time()
-
-    start_4 = time.time()
+    s = '098527'
+    v = 'F00147'
+    if s in G.nodes() and v in G.nodes() and s in G_night and v in G_night:
+        #Amennyiben este 10 után indulunk csak az este 22:00-05:00 közötti járatokat nézzük
+        #Így könnyebb a napváltást implementálni az algoritmusban
+        if 79200 < t <  86400:
+            stops_dict = stops(G_night)
+            path = dijkstra(G_night, s, v, t)
+        else:
+            stops_dict = stops(G)
+            path = dijkstra(G, s, v, t)
+        print(pretty_path(path[0], stops_dict=stops_dict, routes_dict=routes_dict))
+    else:
+        print("Ezek egyike nincs benne a gráfban")
     #kb 0.001 mp futásidő
-    print(pretty_path(path[0], stops_dict=stops_dict, routes_dict=routes_dict))
-    end_4 = time.time()
-
-    print(f"Gráf betöltése: {end_1-start_1}")
-    print(f"Egyéb betöltés: {end_2 - start_2}")
-    print(f"Dijkstra: {end_3-start_3}")
-    print(f"Kiírás: {end_4-start_4}")
-    print(f"Egész algoritmus futásideje: {end_4-start_1} mp")
+    
