@@ -139,26 +139,38 @@ def endpoints():
     path = dijkstra.dijkstra(G, origin, destination, seconds)
     out = dijkstra.pretty_path(path[0], stops_dict=stops_dict, routes_dict=routes_dict)
     
-    labelout = tk.Toplevel(root)
-    labelout.title("Útvonal")
+    window = tk.Toplevel(root)
+    window.title("Útvonal + térkép")
     
-    header = tk.Label(labelout, text="Tervezett útvonal", 
+    main_frame = tk.Frame(window)
+    main_frame.pack(fill="both", expand=True)
+    
+    left_frame = tk.Frame(main_frame)
+    left_frame.pack(side="left", fill="both", expand=True)
+    
+    header = tk.Label(left_frame, text="Tervezett útvonal", 
                   font=("Courier", 16, "bold"), bg="purple", fg="white")
     header.pack(fill="x", pady=(0,10))
-    textbox = tk.Text(labelout, font=("Courier", 12), fg="purple", 
+    textbox = tk.Text(left_frame, font=("Courier", 12), fg="purple", 
                   bg="white", padx=10, pady=10, wrap="word", width=60, height=20)
     textbox.insert("1.0", out)
     textbox.config(state="disabled")
     textbox.pack(padx=10, pady=10)
     
-    plotout = tk.Toplevel(root)
-    #plotout.title("Térkép")
-    #ax.clear()
+    scroll = tk.Scrollbar(left_frame, command=textbox.yview)
+    textbox.config(yscrollcommand=scroll.set)
+    scroll.pack(side="right", fill="y")
+    
+    right_frame = tk.Frame(main_frame)
+    right_frame.pack(side="right", fill="both", expand=True)
+    
+    
     fig, ax = halozat_rajz.fenyo_viz(path[1], origin, destination, path[0])
-    #canvas = FigureCanvasTkAgg(fig, master = plotout)
-    #canvas.draw()
-    #canvas.get_tk_widget().pack()
-
+    canvas = FigureCanvasTkAgg(fig, master = right_frame)
+    canvas.draw()
+    canvas.get_tk_widget().pack(fill="both", expand=True)
+    
+    
 lbl1 = tk.Label(root, width=30, text="Honnan szeretnél utazni?", font=("Courier", 18), bg="purple", fg="white")
 lbl1.grid(row=0, column=0, sticky="nsew")
 
