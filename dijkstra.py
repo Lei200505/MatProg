@@ -87,7 +87,7 @@ def dijkstra(graph, start, end, start_time):
     #    f.write(str(path))
     
     if not vege:
-        return ([p[start]], -1)
+        return ([p[start]], p)
     else:
         return (reconstruct_path(p, start, end), p)
 # Legrövidebb út rekonstruálása a szülőkkel
