@@ -17,10 +17,7 @@ def stops(graph: nx.multidigraph):
     for node in graph.nodes():
         stops_dict[node] = graph.nodes()[node]["stop_name"]
     return stops_dict
-
-
 #Járatszamok betöltése
-
 def routes(fajl):
     r_dict = {}
     r = pd.read_csv(fajl, encoding="utf-8", low_memory=False)
@@ -56,7 +53,7 @@ def dijkstra(graph, start, end, start_time):
         
         # Mivel minden u-v csúcspárra, annyi él van köztük, mint ahány járat megy köztük,
         #így járatonként (data) kell végigiterálni a csúcspárokon/éleken
-        for u, v, data in graph.out_edges(u, data=True):
+        for _, v, data in graph.out_edges(u, data=True):
             #Emellett minden párosított megálló-járat párra az élen van az összes indulás ideje
             #Ezeken végig kell iterálni, úgy hogy mindig csak a legelső elérhető járatra szeretnénk felszállni
             for dep_time, duration in data["departures"]:
@@ -90,7 +87,7 @@ def dijkstra(graph, start, end, start_time):
     #    f.write(str(path))
     
     if not vege:
-        raise ValueError("Nincs út")
+        return ([p[start]], -1)
     else:
         return (reconstruct_path(p, start, end), p)
 # Legrövidebb út rekonstruálása a szülőkkel
@@ -200,4 +197,4 @@ if __name__ == "__main__":
     else:
         print("Ezek egyike nincs benne a gráfban")
     #kb 0.001 mp futásidő
-    
+
