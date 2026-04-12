@@ -5,29 +5,18 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from unidecode import unidecode
 import dijkstra
 import graph_viz
-import time
-from contextlib import redirect_stdout
 import csv
 
 source = "budapest.pkl"
 source_night = "night_budapest.pkl"
-G = dijkstra.graf_betoltes(source, source_night, time.time())
-def stop_dict_maker(graph):
-    stops_dict = {}
-    for node in graph.nodes():
-        stops_dict[node] = G.nodes()[node]["stop_name"]
-    return stops_dict
-stops_dict = stop_dict_maker(G)
-
+G = dijkstra.graf_betoltes(source)
+G_night = dijkstra.graf_betoltes(source_night)
+stops_dict = dijkstra.stops(G)
 stop_list = list(stops_dict.values())
+routes_dict = dijkstra.routes("./budapest_data/routes.txt")
 
-
-with open("./budapest_data/routes.txt", encoding="utf-8", newline="") as f_in:
-    reader = csv.DictReader(f_in)
-    routes_dict = {}
-    for line in reader:
-        routes_dict[line['route_id']] = line['route_short_name']
-
+halozat_rajz = graph_viz.GraphViz(G, r"./budapest_data")
+halozat_rajz_night = graph_viz.GraphViz(G_night, r"./budapest_data")
 
 root = tk.Tk()
 root.title("Utazástervező")
@@ -42,8 +31,6 @@ for i in range(4):
 
 frobool = False
 tobool = False
-
-halozat_rajz = graph_viz.GraphViz(G, r"./budapest_data")
 
 #a tervezés gomb feloldása, miután kezdő-és végpont ki lett választva
 def enable(*args):
@@ -151,10 +138,10 @@ def endpoints():
     textbox.config(state="disabled")
     textbox.pack(padx=10, pady=10)
     
-    plotout = tk.Toplevel(root)
+    #plotout = tk.Toplevel(root)
     #plotout.title("Térkép")
     #ax.clear()
-    fig, ax = halozat_rajz.fenyo_viz(path[1], origin, destination, path[0])
+    halozat_rajz.fenyo_viz(path[1], origin, destination, path[0])
     #canvas = FigureCanvasTkAgg(fig, master = plotout)
     #canvas.draw()
     #canvas.get_tk_widget().pack()
