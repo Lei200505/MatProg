@@ -121,7 +121,7 @@ if __name__ == "__main__":
 
     h  = GraphViz(G, source_folder=gfts_source)
     h.viz()
-    h.fenyo_viz(p, "008280", "009684", path)
+    #h.fenyo_viz(p, "008280", "009684", path)
 
         
         
