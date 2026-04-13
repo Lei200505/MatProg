@@ -6,22 +6,34 @@ from unidecode import unidecode
 import dijkstra
 import graph_viz
 import csv
+import sys
+import os
 
-source = "budapest.pkl"
-source_night = "night_budapest.pkl"
+#a vegso produktum egy .exe file lesz
+#ehhez a .pkl grafokat es a gfts adatbazist be kell csomagulununk
+#pyinstallerel csinaljuk az .exe-t, ehhez kell ennek a tmp mappaja, a  .meipass
+def exe_path(rel_path):
+    try:
+        path = sys._MEIPASS
+    except AttributeError:
+        path = os.path.abspath(".")
+    return os.path.join(path, rel_path)
+
+source = exe_path("budapest.pkl")
+source_night = exe_path("night_budapest.pkl")
 G = dijkstra.graf_betoltes(source)
 stops_dict = dijkstra.stops(G)
 stop_list = list(stops_dict.values())
 G_night = dijkstra.graf_betoltes(source_night)
 stops_dict_night = dijkstra.stops(G_night)
-routes_dict = dijkstra.routes("./budapest_data/routes.txt")
+routes_dict = dijkstra.routes(exe_path("budapest_data/routes.txt"))
 
-halozat_rajz = graph_viz.GraphViz(G, r"./budapest_data")
-halozat_rajz_night = graph_viz.GraphViz(G_night, r"./budapest_data")
+halozat_rajz = graph_viz.GraphViz(G, exe_path("budapest_data"))
+halozat_rajz_night = graph_viz.GraphViz(G_night, exe_path("budapest_data"))
 
 root = tk.Tk()
 root.title("Utazástervező")
-root.iconbitmap("busicon.ico")
+root.iconbitmap(exe_path("busicon.ico"))
 root.minsize(300,200)
 
 #grid átméretezhetősége
