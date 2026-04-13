@@ -10,9 +10,10 @@ import csv
 source = "budapest.pkl"
 source_night = "night_budapest.pkl"
 G = dijkstra.graf_betoltes(source)
-G_night = dijkstra.graf_betoltes(source_night)
 stops_dict = dijkstra.stops(G)
 stop_list = list(stops_dict.values())
+G_night = dijkstra.graf_betoltes(source_night)
+stops_dict_night = dijkstra.stops(G_night)
 routes_dict = dijkstra.routes("./budapest_data/routes.txt")
 
 halozat_rajz = graph_viz.GraphViz(G, r"./budapest_data")
@@ -123,9 +124,9 @@ def endpoints():
     destination = [key for key, val in stops_dict.items() if val == to.get()][0]
     seconds = 3600*int(hr.get()) + 60*int(min.get())
     
-    path = dijkstra.dijkstra(G, origin, destination, seconds)
-    out = dijkstra.pretty_path(path[0], stops_dict=stops_dict, routes_dict=routes_dict)
-    
+    path = dijkstra.dijkstra(graph=G, graph_night=G_night, start=origin, end=destination, start_time=seconds)
+    out = dijkstra.pretty_path(path[0], stops_dict=stops_dict, stops_dict_night=stops_dict_night, routes_dict=routes_dict, tipus=path[2])
+
     labelout = tk.Toplevel(root)
     labelout.title("Útvonal")
     
