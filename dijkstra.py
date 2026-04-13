@@ -27,8 +27,20 @@ def routes(fajl):
     
 
 #Algoritmus
-def dijkstra(graph, start, end, start_time):
-    #Inicializáció
+def dijkstra(graph, graph_night, start, end, start_time):
+    # Ha este 10 után indulunk csak az este 22:00-05:00 közötti járatokat nézzük
+    #return-ben utolsó szám -1 ha a start vagy end nincs a gráfban, -2 ha nincs út a kettő között,
+    # 0 ha van út és nappali, 1 ha van út és éjszakai
+    tipus = 0
+    if 79200 < start_time <  86400:
+        tipus = 1
+        graph = graph_night
+    
+    if start not in graph.nodes() or end not in graph.nodes(): 
+        tipus = -1
+        return ([], {}, tipus)
+    
+    #Algoritmus inicializálása
     vege = False
     
     not_visited = set(graph.nodes()) - {start}
@@ -87,9 +99,11 @@ def dijkstra(graph, start, end, start_time):
     #    f.write(str(path))
     
     if not vege:
-        return ([p[start]], p)
+        tipus = -2
+        return ([p[start]], p, tipus)
     else:
-        return (reconstruct_path(p, start, end), p)
+        return (reconstruct_path(p, start, end), p, tipus)
+    
 # Legrövidebb út rekonstruálása a szülőkkel
 def reconstruct_path(p, start, end):
     if len(p) == 1:
@@ -104,13 +118,18 @@ def reconstruct_path(p, start, end):
     path.append(p[start])
     return path[::-1]
 
-
-
 #Az út összehúzása járatok szerint
 #p[i] =[elindulasi csúcs, aktuáli csúcs, None (key), járat szama, járat típusa, (indulási idő, utazási idő)]
-def pretty_path(p, stops_dict, routes_dict):
+def pretty_path(p, stops_dict, stops_dict_night, routes_dict, tipus):
+    if tipus == -1:
+        return f"A start vagy end nincs a gráfban"
+    if tipus == -2:
+        return f"Nincs út a két megálló között"
     if len(p) == 1:
         return f"Ugyanaz a két megálló"
+    if tipus == 1:
+        stops_dict = stops_dict_night
+    
     #Inicializálás
     #[elindulási csúcs, [köztes megállók], leszállási csúcs, járat száma, járat típusa, [elindulási idő, köztes megallók érkezési ideje, érkezési idő]]
     pretty = [ [p[1][0], [], p[1][1], p[1][3], p[1][4], [p[1][-1][0], p[1][-1][0]+p[1][-1][1]] ] ]
@@ -174,27 +193,20 @@ def transport_conversion(id):
 
 
 if __name__ == "__main__":
-    t = 23*3600 + 57 * 60
     print("Teszt fut")
     source = "budapest.pkl"
     source_night = "night_budapest.pkl"
     G = graf_betoltes(source)
+    stops_dict = stops(G)
     G_night = graf_betoltes(source_night)
+    stops_dict_night = stops(G_night)
     routes_dict = routes("./budapest_data/routes.txt")
 
     s = '098527'
     v = 'F00147'
-    if s in G.nodes() and v in G.nodes() and s in G_night and v in G_night:
-        #Amennyiben este 10 után indulunk csak az este 22:00-05:00 közötti járatokat nézzük
-        #Így könnyebb a napváltást implementálni az algoritmusban
-        if 79200 < t <  86400:
-            stops_dict = stops(G_night)
-            path = dijkstra(G_night, s, v, t)
-        else:
-            stops_dict = stops(G)
-            path = dijkstra(G, s, v, t)
-        print(pretty_path(path[0], stops_dict=stops_dict, routes_dict=routes_dict))
-    else:
-        print("Ezek egyike nincs benne a gráfban")
+    t = 23*3600 + 57 * 60
+    path = dijkstra(G, G_night, s, v, t)
+    print(pretty_path(path[0], stops_dict=stops_dict, stops_dict_night=stops_dict_night, routes_dict=routes_dict, tipus=path[2]))
+
     #kb 0.001 mp futásidő
 
