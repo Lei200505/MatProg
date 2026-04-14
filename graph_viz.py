@@ -33,7 +33,6 @@ class GraphViz:
         nx.draw_networkx_edges(self.G, pos, edgelist=transfer_edges, edge_color = "gray", arrows = False, alpha=0.3)
 
         nx.draw_networkx_nodes(self.G, pos, node_size=2, node_color="#444444")
-        nx.draw_networkx_nodes(self.G, pos, nodelist=["F04517"], node_size=5, node_color="red")
         plt.axis("off")
         plt.show()
 
@@ -59,6 +58,8 @@ class GraphViz:
     def fenyo_viz(self, fenyo: dict, start, end, path):
         #eloszor epitunk egy start-fenyot.
         G = nx.MultiDiGraph()
+        if not path:
+            return None
         for node, edge in fenyo.items():
             parent = edge[0]
             if node != parent:
