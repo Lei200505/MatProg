@@ -172,6 +172,16 @@ def pretty_path(p, stops_dict, stops_dict_night, routes_dict, tipus):
             output += f"\t -{stops_dict[jarat[2]]} - {pretty_time(jarat[-1][-1])}\n"
     return output
 def pretty_time(t):
+    if t > 86400:
+        t = t - 86400
+        h = t // 3600
+        m = (t % 3600) // 60
+        s = t % 60
+        if s != 0:
+            return f"{h:02d}:{m:02d}:{s:02d} (+1)"  
+        else:
+            return f"{h:02d}:{m:02d} (+1)"
+
     h = t // 3600
     m = (t % 3600) // 60
     s = t % 60
