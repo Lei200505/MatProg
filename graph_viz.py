@@ -105,7 +105,8 @@ class GraphViz:
                 arrows=False,
                 width=2
             )
-            plt.pause(0.5)
+            plt.pause(0.2)
+        plt.close(fig)
         return fig, ax
             
 
