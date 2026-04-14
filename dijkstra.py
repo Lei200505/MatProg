@@ -5,7 +5,7 @@ import pickle
 import time
 import math
 
-#Adatok betöltése
+#-----------Adatok betöltése-----------
 # Gráf betöltése
 def graf_betoltes(fajl):
     with open(fajl, "rb") as f:
@@ -26,7 +26,7 @@ def routes(fajl):
     return r_dict
     
 
-#Algoritmus
+#-----------Algoritmus-----------
 def dijkstra(graph, graph_night, start, end, start_time):
     # Ha este 10 után indulunk csak az este 22:00-05:00 közötti járatokat nézzük
     #return-ben utolsó szám -1 ha a start vagy end nincs a gráfban, -2 ha nincs út a kettő között,
@@ -42,15 +42,12 @@ def dijkstra(graph, graph_night, start, end, start_time):
     
     #Algoritmus inicializálása
     vege = False
-    
     not_visited = set(graph.nodes()) - {start}
     visited = set([start]) 
     K = {start: start_time}
     
-    
     #[elindulási csúcs, aktuális csúcs, None (key), járat száma, járat típusa, (indulási idő, utazási idő)]
     p = {start: [start, start, None, None, None, (start_time, 0)]} 
-    
     
     
     #Algoritmus futtatása (amíg elérjük a célt vagy nincs több hely ahova el tudnánk menni)
@@ -90,20 +87,13 @@ def dijkstra(graph, graph_night, start, end, start_time):
                         visited.add(v)
                         not_visited = not_visited - {v}
                         p[v] = [u, v, None, "TRANSFER", "TRANSFER", (K[u], duration)]
-
-    #balint: ezt en irtam bele, hogy ideiglenesen tudjam tesztelni graph_viz.py-t. amikor az egesz script egy fajl lesz mar nem kell
-    #with open(r"C:\Users\Lenovo\Desktop\matprogcsom\grafepites\p.txt", "w") as f:
-    #    f.write(str(p))
-    #path = reconstruct_path(p, start, end)
-    #with open(r"C:\Users\Lenovo\Desktop\matprogcsom\grafepites\path.txt", "w") as f:
-    #    f.write(str(path))
     
     if not vege:
         tipus = -2
         return ([p[start]], p, tipus)
     else:
         return (reconstruct_path(p, start, end), p, tipus)
-    
+
 # Legrövidebb út rekonstruálása a szülőkkel
 def reconstruct_path(p, start, end):
     if len(p) == 1:
@@ -118,9 +108,9 @@ def reconstruct_path(p, start, end):
     path.append(p[start])
     return path[::-1]
 
-#Az út összehúzása járatok szerint
-#p[i] =[elindulasi csúcs, aktuáli csúcs, None (key), járat szama, járat típusa, (indulási idő, utazási idő)]
+#--------Az út szöveges megjelenítése--------
 def pretty_path(p, stops_dict, stops_dict_night, routes_dict, tipus):
+    # Ha a start vagy end nincs a gráfban, vagy nincs út a kettő között, vagy ugyanaz a két megálló, akkor ezt írjuk ki
     if tipus == -1:
         return f"A start vagy end nincs a gráfban"
     if tipus == -2:
@@ -131,6 +121,7 @@ def pretty_path(p, stops_dict, stops_dict_night, routes_dict, tipus):
         stops_dict = stops_dict_night
     
     #Inicializálás
+    #p[i] =[elindulasi csúcs, aktuáli csúcs, None (key), járat szama, járat típusa, (indulási idő, utazási idő)]
     #[elindulási csúcs, [köztes megállók], leszállási csúcs, járat száma, járat típusa, [elindulási idő, köztes megallók érkezési ideje, érkezési idő]]
     pretty = [ [p[1][0], [], p[1][1], p[1][3], p[1][4], [p[1][-1][0], p[1][-1][0]+p[1][-1][1]] ] ]
     
@@ -147,7 +138,7 @@ def pretty_path(p, stops_dict, stops_dict_night, routes_dict, tipus):
             pretty.append([p[i][0], [], p[i][1], p[i][3], p[i][4], [p[i][-1][0], p[i][-1][0]+p[i][-1][1]]])
 
     
-    #Kiíratás
+    #String összeállítása
     output = f""
     
     output += f"Teljes idő: {math.ceil((pretty[-1][-1][-1] - pretty[0][-1][0])/60)} perc\n"
@@ -172,23 +163,18 @@ def pretty_path(p, stops_dict, stops_dict_night, routes_dict, tipus):
             output += f"\t -{stops_dict[jarat[2]]} - {pretty_time(jarat[-1][-1])}\n"
     return output
 def pretty_time(t):
+    day = ""
     if t > 86400:
         t = t - 86400
-        h = t // 3600
-        m = (t % 3600) // 60
-        s = t % 60
-        if s != 0:
-            return f"{h:02d}:{m:02d}:{s:02d} (+1)"  
-        else:
-            return f"{h:02d}:{m:02d} (+1)"
-
+        day = " (+1)" 
     h = t // 3600
     m = (t % 3600) // 60
     s = t % 60
+
     if s != 0:
-        return f"{h:02d}:{m:02d}:{s:02d}"  
+        return f"{h:02d}:{m:02d}:{s:02d}" + day  
     else:
-        return f"{h:02d}:{m:02d}"
+        return f"{h:02d}:{m:02d}" + day
 def transport_conversion(id):
     if id == 3:
         return "busz"
@@ -204,6 +190,7 @@ def transport_conversion(id):
 
 if __name__ == "__main__":
     print("Teszt fut")
+    #Betöltjük a gráfokat, megállókat és járatszámokat
     source = "budapest.pkl"
     source_night = "night_budapest.pkl"
     G = graf_betoltes(source)
@@ -212,11 +199,9 @@ if __name__ == "__main__":
     stops_dict_night = stops(G_night)
     routes_dict = routes("./budapest_data/routes.txt")
 
+    #Teszteljük a dijkstra algoritmust egy konkrét útvonalon és időpontban
     s = '098527'
     v = 'F00147'
     t = 23*3600 + 57 * 60
     path = dijkstra(G, G_night, s, v, t)
     print(pretty_path(path[0], stops_dict=stops_dict, stops_dict_night=stops_dict_night, routes_dict=routes_dict, tipus=path[2]))
-
-    #kb 0.001 mp futásidő
-
