@@ -22,21 +22,17 @@ t = 23*3600 + 57 * 60
 
 
 
-"""
 
 path, fenyo = dijkstra.dijkstra(G_night, stop_list[0], '19785', t)
 halozat_rajz = graph_viz.GraphViz(G_night, r"./budapest_data")
 halozat_rajz.fenyo_viz(fenyo, stop_list[0], '061379', path)
 
 node = '19784'
-
 for u, v, data in G_night.out_edges(node, data=True):
     print(u, "->", v, data)
 
-
-
-hiba_parok = ['061379', '118757', '19784274', '19785275', '19785', '19784']
-for hibas in hiba_parok:
+hiba = ['061379', '118757', '19784274', '19785275', '19785', '19784']
+for hibas in hiba:
     try:
         if hibas in G_night.nodes():
             path, fenyo = dijkstra.dijkstra(G_night, stop_list[0], hibas, t)
@@ -47,14 +43,13 @@ for hibas in hiba_parok:
             print(hibas)
     except Exception as e:
         print(f"Hiba {e}")
-"""
-
 
 print("Kezdődhet")
-hiba_parok = []
+hiba = []
 szazas = 1
 futas = 0
 for allomas in stop_list:
+    continue
     try:
         path = dijkstra.dijkstra(G_night, allomas, stop_list[0], t)
         dijkstra.pretty_path(path[0], stops_dict=stops_dict, routes_dict=routes_dict)
@@ -68,4 +63,11 @@ for allomas in stop_list:
         hiba_parok.append(allomas)
         print(allomas)
 
-print(hiba_parok)
+print(hiba)
+
+
+for stop in stop_list:
+    if stop not in G_night.nodes():
+        print(f"{stop} nincs a gráfban")
+    if stop not in G.nodes():
+        print(f"{stop} nincs a gráfban")
