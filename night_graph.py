@@ -31,9 +31,9 @@ class Graph:
             arr_times = list(self.time_from_str(group["arrival_time"]))
             dep_times = list(self.time_from_str(group["departure_time"]))
 
-            #az ejszakai jaratok modellezesere csak az este 22:00 es reggel 5:00 kozotti jaratok kerulnek bele
+            #az ejszakai jaratok modellezesere csak az este 22:00 es reggel 7:00 kozotti jaratok kerulnek bele
             for i in range(len(stops_list)-1):
-                if dep_times[i] <= 18000 or dep_times[i] >= 79200:
+                if dep_times[i] <= 7 * 3600 or dep_times[i] >= 79200:
                     edge = {
                         "from_stop": stops_list[i],
                         "to_stop": stops_list[i+1],

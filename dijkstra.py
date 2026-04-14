@@ -32,7 +32,7 @@ def dijkstra(graph, graph_night, start, end, start_time):
     #return-ben utolsó szám -1 ha a start vagy end nincs a gráfban, -2 ha nincs út a kettő között,
     # 0 ha van út és nappali, 1 ha van út és éjszakai
     tipus = 0
-    if 79200 < start_time <  86400:
+    if 79200 < start_time < 86400 or start_time < 3 * 3600:
         tipus = 1
         graph = graph_night
     
