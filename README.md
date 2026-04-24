@@ -10,9 +10,13 @@ https://shorturl.at/X8C9O
 2. Csomagold ki a projekt mappájába
 3. Nevezd át vagy helyezd át a mappát ide: budapest_data
 4. Futtasd a graph.py és a night_graph.py fájlokat (ezek eltarthatnak egy ideig kb 1-2perc)
-(1.-4 lépések akkor szükséges csak, ha friss adatokkal szeretnéd használni)
+- (1.-4 lépések akkor szükséges csak, ha friss adatokkal szeretnéd használni)
 5. Ezután program inditásához szükséges fájl: ui.py
-Ezek után már elég csak ezt a fájlt futtatni ha többször is szeretnéd használni
+- Ezek után már elég csak ezt a fájlt futtatni ha többször is szeretnéd használni
+
+
+## Funkciók
+
 
 
 
