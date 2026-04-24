@@ -114,7 +114,7 @@ def pretty_path(p, stops_dict, stops_dict_night, routes_dict, tipus):
     if tipus == -1:
         return f"A kezdőpont vagy végpont nem létezik"
     if tipus == -2:
-        return f"Nincs út a két megálló között"
+        return f"Sajnos nem érsz már ma el oda innen, indulj el előbb/holnap vagy válassz másik útvonalat"
     if len(p) == 1:
         return f"Ugyanaz a két megálló"
     if tipus == 1:
