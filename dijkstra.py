@@ -112,7 +112,7 @@ def reconstruct_path(p, start, end):
 def pretty_path(p, stops_dict, stops_dict_night, routes_dict, tipus):
     # Ha a start vagy end nincs a gráfban, vagy nincs út a kettő között, vagy ugyanaz a két megálló, akkor ezt írjuk ki
     if tipus == -1:
-        return f"A start vagy end nincs a gráfban"
+        return f"A kezdőpont vagy végpont nem létezik"
     if tipus == -2:
         return f"Nincs út a két megálló között"
     if len(p) == 1:
