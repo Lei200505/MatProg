@@ -29,7 +29,71 @@ A program alapvetően egy leggyorsabb utat keres két megálló között az indu
 ## graph.py, night_graph.py
 A gráf felépítése a graph és night_graph fájlokban történik meg. A kód a teljes GTFS adatbázisból egy networkx gráf objektumot hoz létre, majd azt .pkl formátumban menti a gyors megnyitásért. Megjegyzendő, hogy eredetileg .json formátumot használtunk, ami bár kedvezőtlenebb betöltési idejű volt, de ember számára is olvasható, és így egyszerűbbé tette a debug-olást, valamint a lentebb részletezendő, legrövidebb út keresésére legalkalmasabb adatstruktúra kialakítását.
 
-A két program gyakorlatilag identitikus, főleg beállításbeli különbségek adódnak. Azért van szükség külön éjszakai gráfra, mert az adatbázis éjfélkor értelemszerűen abbahagyja a járatok listázását, és így 
+Az adatbázis legnagyobb hiányossága az átszállások megvalósítása. Ha kizárólag a GTFS adatokból dolgoznánk, akkor a megállok kizárólag a beléjük, és belőlük futó járatokkal közelíthetőek meg, és így az átszállás nem lehetséges. A megoldást erre a közeli megállók átszálló élekkel való összeköttetése biztosítja, melynek működését az alábbiakban részletezzük. Ennek a konstrukciónak a szükségességét a Deák Ferenc tér jól illusztrálja: közel 40 megálló tartozik ehhez a csomóponthoz, átszálló élekkel nem lehetne a 3-as metróról a 9-es buszra szállni.
+
+A két program gyakorlatilag identitikus, főleg beállításbeli különbségek adódnak. Azért van szükség külön éjszakai gráfra, mert az adatbázis éjfélkor értelemszerűen abbahagyja a járatok listázását, és így az éjfélhez közel, de még azelőtt utak nem érnek céljukba. Ezen túl, tekintve, hogy az éjszakai járatok ritkábban fedik le a hálózatot, távolabbi pontok közötti átszállóélek behúzását is engedélyezzük.
+
+### __init__
+
+Az inicializáló függvény létrehozza megadott mappában elhelyezett a legfontosabb adatforrásokat. Ezek a következők.
+- stops.txt: Ez a hálózat megállólistáját tartalmazza. A megállót egy egyedi azonosítóval látja el, eltárolja a nevét, hosszúsági és szélességi koordinátáit. A Google egyébként további adatok, mint például szülő megálló (csomópontok modellezésére) eltárolására is biztosít lehetőséget, azonban ezt a BKK nem tölti, ezért is van szükség átszálló élekre.
+- routes.txt: Ez a hálózat járatait listázza. Egyedi azonosítóval látja el a járatot, valamint hozzárendeli a járat nevét, mely két végállomás között közlekedik, valamint megadja a járat típusát: metró, villamos, busz, stb.
+- trips.txt: A routes.txt-nél granulárisabb adat. Tartalmazza egy adott járat minden további viszonylatát, azaz leírja, hogy egy melyik végállomásról, mikor indul el, és ezt ellátja egy egyedi azonosítóval.
+- stop_times.txt: A leggranulárisabb, és egyben a gráfépítéshez legfontosabb adat. Ez már a trips.txt-ben definiált viszonylatokhoz rendeli hozzá azok konkrét megálló szekvenciáját, valamint a megállókba való érkezés és az onnan való indulás idejét.
+
+### time_from_str
+
+Ez a függvény a GTFS által használt "HH:MM:SS" formátumból konvertál egy teljes időtömböt másodpercekre. A program során mindig 00:00:00-tól eltelt másodpercekben számolunk. Ha egy út például 23:30:00-kor indul, és éjfél után záródik, akkor engedjük, hogy túlcsorduljon 86400-on ez a számoló, éppen ezért van szükség az éjszakai gráfra, hogy ezeket az utakat is eltároljuk.
+
+### edge_list
+
+Ez a függvény a legcentrálisabb eleme ennek az osztálynak. Feldolgozzuk az __init__-ben definiált adatokat egy járatok viszonylatait tartalmazó éllistába, melyből aztán gráfot építünk.  Tekintsük a konstrukció menetét.
+
+1. Először a stop_times-ot rendezzük viszonylatszám (trip_id) és megálló szekvencia szerint. Ezzel olyan pandas df-et kapunk, amelyben az egymást követő adatsorok egy konkrét jármű által érintett megállókat listázza.
+2. Ezeket viszonylatszám szerint csoportosítjuk, majd az egyes csoportokon végig megyünk (egy csoport itt például a 7:00-kor induló 75-ös trolibusz megállószekvenciája.)
+3. Az érintett megállókon végigmegyünk, majd egy élbe az alábbi adatokat tároljuk:
+    - from_stop: melyik megállóból indul az adott él
+    - to_stop: melyik megállóba megy az adott él
+    - departure_time: mikor indul el az adott megállóból
+    - arrival_time: miikor érkezik meg az adott megállóból
+    - trip_id: melyik az a viszonylat azonosító, ami szerint az adott csoportot vizsgáljuk
+4. Az így konstruált éleket egy újabb pandas df-be rakjuk.
+5. Most rengeteg él van: minden viszonylatnak külön, ez nyilván életszerűtlen. Ezért összevonjuk a viszonylatokat járatok szerint csoportosítva (ezért kellett a korábbi lépésben az élbe viszonylatszámot tárolni, itt eltűnne ez az adat)
+6. Ezek után csoportosítjuk az éleket from_stop, to_stop, route_id szerint, valamint beleírjuk az adott él járatának típusát (ez majd a kiírásnál hasznos, hogy lássuk melyik él metró, melyik busz, stb.). Ezzel most minden járatnak, minden általa érintett megállóköznek van egy éle. Ez sok párhuzamos élet eredményez (pl. Keleti és Huszár utca között fut él 5, 7, 8, 107, 110, 112 buszoknak saját éle), de jól diszkretizálja a járatokat a gráf már egy korai stádiumában.
+7. Meghívjuk az átszállóéeleket legeneráló transfer_edges metódust, majd ezeket is beépítjük az éllistába, majd ezt visszadjuk.
+
+Megjegyezzük, hogy ez még nem a végleges szerkezete a gráf éleinek. A végső cél az, hogy minden indulás minden élen viszonylatonként egy élattribútumban kerüljön.
+
+###transfer_edges
+A transfer_edges metódus átszálló éleket hoz létre az adott távolságú csúcspárok között. A nappali gráfban ez 200, az éjszakaiban 1250 méter.  A metódus szükségességét fentebb motiváltuk. Itt szükségünk lesz a SciPy.spatial cKDTree moduljára. Ez egy olyan adatstruktúra, ami egy 2-dim fát épít fel a stops.txt-ben definiált gömbi koordiniáták szerinti Euklideszi távolsággal, és így a közeli pontokat rendkívül gyorsan elérjük. Eleinte minden pontpárra ellenőriztünk távolságot, de ez O(n^2) idejével túlságosan lassúnak bizonyult.
+
+Tekintsük a metódus lépéseit!
+1. A stops.txt-ben adott koordinátákat egy numpy array-ben tároljuk, majd egy cKDTree-t építünk belőle. 
+2. A távolságot egy egyszerű becsléssel definiáljuk: egy fok körülbelül 110 km, így a maximális távolság max_transfer_dist (200/1250) / meters_per_degree (110.000). Ekkor a cKDTree query_ball_point metódusa gyors elérést biztosít: minden pontra meghatározza a B(pont, max_dist)-ba eső pontokat.
+3. Ekkor minden szomszédra megvizsgáljuk a távolságot np.linalg.norm segítségével, és előre definiált, konstans sebességgel (1.5m/s nappal, 1 m/s éjjel) átjárhatóvá tesszük őket.
+4. Ugyanazzal az adatstruktúrával járunk el, mint a fenti éleknél:
+    - from_stop: megálló, ahonnan sétálunk
+    - to_stop: megálló, ahova sétálunk
+    - route_id: TRANSFER <- jelezzük, hogy átszálló él
+    - route_type: TRANSFER <- jellezük, hogy átszálló él
+    - depratures: [(0, t, TRANSFER)] <- az indulása 0 időpontban lesz, t ideig megyünk át rajta konstans idővel.
+5. Visszadjuk az így meghatározott átszállóéleket.
+
+### graph
+
+A fent konstruált éllistából létrehoz egy networkx MultiDiGraph objektumot, azaz egy párhuzamos élekkel is rendelkező irányított gráfot. 
+1. Létrehozzuk a gráf objektumot.
+2. Végigmegyünk a megadott éllistán, majd minden tekintjük az adott élen tárolt indulás listát. Ha éjszakai gráfot építünk, akkor a reggel 5:00 (18000 mp) induló járatokat felvesszük indulási idő + 1 nappal is az éjfélen túllépést beépítve.
+3. Ezek után az indulási listából kiindulva felépítjük az alábbi éleket (u, v, **args):
+    - u = from_stop
+    - v = to_stop
+    - key: ez technikai, nélküle valamiért hibát dobott
+    - route_id: járat azonosítója
+    - route_type: járat típusa (metró, busz, transfer, stb.)
+    - departures: konkrét (indulás, átuzási idő, viszonylatszám) hármasok
+4. Ezzel létrejöttek a gráf csúcsai, a megállók, melyeket a from_stop és to_stop révén stop_id azonosítja, erre rávetitjük csúcs attribútumként a megállók neveit is a későbbi könnyebb elérésért.
+5. Végül eltávolítjuk az izoláltpontokat, és visszadajuk a gráf objektumot.
+
 ## graph_viz.py
 
 ## dijkstra.py
