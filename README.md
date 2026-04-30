@@ -27,7 +27,9 @@ A program alapvetően egy leggyorsabb utat keres két megálló között az indu
 # Fájlok tartalma
 
 ## graph.py, night_graph.py
+A gráf felépítése a graph és night_graph fájlokban történik meg. A kód a teljes GTFS adatbázisból egy networkx gráf objektumot hoz létre, majd azt .pkl formátumban menti a gyors megnyitásért. Megjegyzendő, hogy eredetileg .json formátumot használtunk, ami bár kedvezőtlenebb betöltési idejű volt, de ember számára is olvasható, és így egyszerűbbé tette a debug-olást, valamint a lentebb részletezendő, legrövidebb út keresésére legalkalmasabb adatstruktúra kialakítását.
 
+A két program gyakorlatilag identitikus, főleg beállításbeli különbségek adódnak. Azért van szükség külön éjszakai gráfra, mert az adatbázis éjfélkor értelemszerűen abbahagyja a járatok listázását, és így 
 ## graph_viz.py
 
 ## dijkstra.py
