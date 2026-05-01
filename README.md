@@ -74,7 +74,7 @@ Ez a függvény a legcentrálisabb eleme ennek az osztálynak. Feldolgozzuk az _
 
 Megjegyezzük, hogy ez még nem a végleges szerkezete a gráf éleinek. A végső cél az, hogy minden indulás minden élen viszonylatonként egy élattribútumban kerüljön.
 
-###transfer_edges
+### transfer_edges
 A transfer_edges metódus átszálló éleket hoz létre az adott távolságú csúcspárok között. A nappali gráfban ez 200, az éjszakaiban 1250 méter.  A metódus szükségességét fentebb motiváltuk. Itt szükségünk lesz a SciPy.spatial cKDTree moduljára. Ez egy olyan adatstruktúra, ami egy 2-dim fát épít fel a stops.txt-ben definiált gömbi koordiniáták szerinti Euklideszi távolsággal, és így a közeli pontokat rendkívül gyorsan elérjük. Eleinte minden pontpárra ellenőriztünk távolságot, de ez O(n^2) idejével túlságosan lassúnak bizonyult.
 
 Tekintsük a metódus lépéseit!
