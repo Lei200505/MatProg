@@ -27,6 +27,16 @@ A program alapvetően egy leggyorsabb utat keres két megálló között az indu
 # Fájlok tartalma
 
 ## graph.py, night_graph.py
+
+### Dependenciák
+- numpy és pandas fogja a nagy mennyiségű GTFS adatok kezelni.
+- networkx fogja a felípetett gráfhoz biztosítani az alapvető adatstruktúrát biztosítani. MultiDiGraph-ot, azaz irányított, nem egyszerű gráfot építünk. A járatok és megállók információit az él- és csúcsattribútumként tároljuk.
+- SciPy.spatial: cKDTree modul segítségével találjuk meg közel konstans időben az egymáshoz közeli megállókat.
+- pickle: .pkl formátumban mentjük a gráfot a gyors, bináris adatolvasáshoz.
+- json (már nem használt): ezzel emberek számára is olvasható formátumban menthető a gráf
+- os: filekezelés.
+
+### Bevezetés
 A gráf felépítése a graph és night_graph fájlokban történik meg. A kód a teljes GTFS adatbázisból egy networkx gráf objektumot hoz létre, majd azt .pkl formátumban menti a gyors megnyitásért. Megjegyzendő, hogy eredetileg .json formátumot használtunk, ami bár kedvezőtlenebb betöltési idejű volt, de ember számára is olvasható, és így egyszerűbbé tette a debug-olást, valamint a lentebb részletezendő, legrövidebb út keresésére legalkalmasabb adatstruktúra kialakítását.
 
 Az adatbázis legnagyobb hiányossága az átszállások megvalósítása. Ha kizárólag a GTFS adatokból dolgoznánk, akkor a megállok kizárólag a beléjük, és belőlük futó járatokkal közelíthetőek meg, és így az átszállás nem lehetséges. A megoldást erre a közeli megállók átszálló élekkel való összeköttetése biztosítja, melynek működését az alábbiakban részletezzük. Ennek a konstrukciónak a szükségességét a Deák Ferenc tér jól illusztrálja: közel 40 megálló tartozik ehhez a csomóponthoz, átszálló élekkel nem lehetne a 3-as metróról a 9-es buszra szállni.
@@ -94,8 +104,47 @@ A fent konstruált éllistából létrehoz egy networkx MultiDiGraph objektumot,
 4. Ezzel létrejöttek a gráf csúcsai, a megállók, melyeket a from_stop és to_stop révén stop_id azonosítja, erre rávetitjük csúcs attribútumként a megállók neveit is a későbbi könnyebb elérésért.
 5. Végül eltávolítjuk az izoláltpontokat, és visszadajuk a gráf objektumot.
 
+### save_graph
+A létrehozott gráf objektumot elmentjük egy pickle bináris fileba. Alapértelmezetten a graph.py mappájába kerül. A networkx beépített nx.node_link_data metódusa egyszerűvé teszi a pickle-be írást, de hasonlóan json-be is kiírható a gráf. Ekkor egyszerűen
+egy with open(file, rb) as f: data = pickkle.load(f) -> majd nx.node_link_graph(data) módon újra létrehozható gyorsan a gráf más fájlban.
+
 ## graph_viz.py
 
+### Dependenciák
+- networkx a gráf olvasáshoz és építéshez.
+- numpy és pandas az adatkezeléshez
+- pickle a gráfolvasáshoz
+- matplotlib.pyplot a vizualizációhoz
+- os a fájlkezeléshez
+
+### Bevezetés
+A graph_viz modul networkx MultiDiGraph objektumok matplotlib segítégével való kirajzolására képes. A teljes hálózaton túl a dijkstra.py modul által meghatározott legrövidebb utak s-fenyőjét is képes kirajzolni, ezzel az út vizualizálásával a GUI-ban is megjelenik funkcionális elemben.
+
+### __init__
+A kód futásához elegengedethetlen a stops.txt és routes.txt beolvasása. A stops.txt-ből a megállók elhelyezkedését, a routes.txt-ből az adott élek fajtáit térképezzük fel. Beolvassuk továbbá a gráfot is, de ezt csupán a teljes hálózat kirajzolásakor használjuk.
+
+
+
+### viz
+A teljes hálózat vizualizációjára alkalmas objektum. 
+1. Először létrehozunk egy szótárat {stop_id: (stop_hosszúsági koord, stop_szelessegi koord)} alakban. Létrehozzuk a matplotlib figure-t.
+2. Ezek után a gráf éleit, amelyet __init__-ben olvastunk be, leválógatjuk járat típus (route_type) szerint az éleket, majd a nx.draw_network_edges- segítségével a járatok szerint csoportosított éleket megfelelő színnel kirajzoljuk.
+3. Végül kirajzoljuk a csúcsokat is és megjelenítjük a figure-t.
+
+### get_edge_color
+Az élekben eltárolt route_type attribútum segítségével kiolvassuk, hogy egy adott él milyen járműnek felel meg, majd visszadjuk a BKK által, az adott típusra alkalmazott színsémát: busz = kék, troli = piros, villamos = sárga, metró = fekete, hév = zöld, transfer = szürke, ha pedig nincs valamiért route_type (bár ez konstrukcióból adódóan nem lehetséges intakt adatbázis esetén) lila lesz.
+
+Ez a metódus azután íródott, hogy a viz metódus meg lett volna írva, így abba nem volt értelme beleépíteni. Ezért csak a következő metódus használja.
+
+### fenyo_viz
+Ez a metódus a dijkstra.py outputjaként kapott legrövidebb utak start-fenyőjét kirajzolja, majd a szekvenciálisan feltűnteti a legrövidebb utat start és end pontok között.
+
+1. Ehhez először a Dijkstra által megadott fenyo dictionary-t visszaalakítjuk egy nx.MultiDiGraph objektummá.
+2. Megint beolvassuk a csúcsok helyeiet egy dictionary-be, mint viz-nél tettük, illetve létrehozzuk a plt.figure-t.
+3. Kirajzoljuk szürkével a felfedezett éleket és csúcsokat, valamint a start és end csúcsokat nagyobb, színes módon vetítjük az ábrára.
+4. Végül a dijkstra.py path legrövidebb útjából kiolvassuk a legrövidebb utat. A lépéseket egy for ciklusban, iteratívan építjük az utat, így "belelátunk" az algoritmus működésébe, a legrövidebb utat animáljuk.
+5. Minden uv lépésre az útban meghatározzuk u-t, v-t, milyen és melyik járművön tette meg az u és v között, majd a get_edge_color segítségével megkapjuk a színét. 
+6. Végül megfelelő színnel ábrázoljuk (felülírjuk, a 3.-ban szürkével kirajzolt út-élt), és megállítjuk az animációt plt.pause segítségével 0.2 másodperce lépésenként.
 ## dijkstra.py
 - Feldolgozott gráf betöltése
 - Megfelelő megállók és járatok betöltése
