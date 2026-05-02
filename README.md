@@ -35,6 +35,7 @@ A program alapvetően egy leggyorsabb utat keres két megálló között az indu
 - pickle: .pkl formátumban mentjük a gráfot a gyors, bináris adatolvasáshoz.
 - json (már nem használt): ezzel emberek számára is olvasható formátumban menthető a gráf
 - os: filekezelés.
+- tkinter: felhasználói felület megalkotása
 
 ### Bevezetés
 A gráf felépítése a graph és night_graph fájlokban történik meg. A kód a teljes GTFS adatbázisból egy networkx gráf objektumot hoz létre, majd azt .pkl formátumban menti a gyors megnyitásért. Megjegyzendő, hogy eredetileg .json formátumot használtunk, ami bár kedvezőtlenebb betöltési idejű volt, de ember számára is olvasható, és így egyszerűbbé tette a debug-olást, valamint a lentebb részletezendő, legrövidebb út keresésére legalkalmasabb adatstruktúra kialakítását.
@@ -159,3 +160,14 @@ Ez a metódus a dijkstra.py outputjaként kapott legrövidebb utak start-fenyőj
     - szöveg létrehozása
 
 ## ui.py
+- programok importálása
+- gráfok, megállók betöltése
+- főablak létrehozása
+    - átméretezhető gridrendszer létrehozása
+    - keresőmezők, címkék, listák, gombok, legördülő menük létrehozása, gridbe helyezése
+    - tervező gomb feloldása a szükséges adatok megadása után
+    - megállók szűrése keresőmezőbe gépelés során
+    - keresőmező kitöltése megállóra kattintás után
+    - tervezés a gomb megnyomására
+        - gráf vizualizálása
+        - átszállások kiírása
