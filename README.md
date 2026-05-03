@@ -6,6 +6,7 @@ A projekt az OpenData Portál tervezett menetrendi adatait használja:
 https://shorturl.at/X8C9O
 
 ## Használat
+0. A fájlok futtatásához szükséges könytárakat töltsd le, ezek megtalálhatóak a requirements.txt fájlban
 1. Töltsd le a fenti linkről a ZIP fájlt (budapest_gtfs.zip)
 2. Csomagold ki a projekt mappájába
 3. Nevezd át vagy helyezd át a mappát ide: budapest_data
@@ -22,7 +23,7 @@ A program alapvetően egy leggyorsabb utat keres két megálló között az indu
 
 - Nem talált útvonal: előfordulhat, hogy túl későn indulnál el egy megállóba ahova vagy csak nagyon sok sétával vagy csak nagyon sokára érnél oda, ilyenkor azt ajánlja, hogy hamarabb indulj el
 
--Easter egg: a Maglódi Auchan megálló az egyetlen olyan megálló ahova, ha éjfélhez elég közel akarsz indulni, akkor azt az üzenetet kapod, hogy a megálló nem is létezik (ennek az oka, hogy a megállóhoz legközelebbi másik megálló 1km-es távolságon kívül van így az algoritmus szerint) 
+Easter egg: a Maglódi Auchan megálló az egyetlen olyan megálló ahova, ha éjfélhez elég közel akarsz indulni, akkor azt az üzenetet kapod, hogy a megálló nem is létezik (ennek az oka, hogy a megállóhoz legközelebbi másik megálló 1km-es távolságon kívül van így az algoritmus szerint) 
 
 # Fájlok tartalma
 
@@ -146,18 +147,81 @@ Ez a metódus a dijkstra.py outputjaként kapott legrövidebb utak start-fenyőj
 4. Végül a dijkstra.py path legrövidebb útjából kiolvassuk a legrövidebb utat. A lépéseket egy for ciklusban, iteratívan építjük az utat, így "belelátunk" az algoritmus működésébe, a legrövidebb utat animáljuk.
 5. Minden uv lépésre az útban meghatározzuk u-t, v-t, milyen és melyik járművön tette meg az u és v között, majd a get_edge_color segítségével megkapjuk a színét. 
 6. Végül megfelelő színnel ábrázoljuk (felülírjuk, a 3.-ban szürkével kirajzolt út-élt), és megállítjuk az animációt plt.pause segítségével 0.2 másodperce lépésenként.
+
 ## dijkstra.py
-- Feldolgozott gráf betöltése
-- Megfelelő megállók és járatok betöltése
-- Módosított dijkstra
-    - Nappali vagy éjszakai gráf használata
-    - Hiányos kimenet kezelése
-    - Célállomásig tartó algoritmus (séta vagy buszjárat szerinti éleken haladva, járat rekonstruáláshoz szükséges adatok eltárolásával)
-    - kimenetben rekonstruálni a megtalált legrövidebb utat 
-- Útvonalterv szép kiíratásáshoz szükséges adatok
-    - megfelelő járatok együttkezelése
-    - idő konvertálása
-    - szöveg létrehozása
+### Dependenciák:
+-networkx a budapest.pkl és night_budapest.pkl-ben eltárolt adatokból visszaépíti a szükséges gráfot az élekkel és a megállókkal mint pontok. Ez a gráf felépytése az adatoknak nagyban megkönnyíti a dijkstra algoritmus implementálását is és az útvonalak rekonsturálását is
+- pickle formátum beolvasásához szükséges (gyorsabb adatfeldolgozáshoz bináris adatok)
+- pandas: míg a megállókat a gráfból olvassuk ki, a járatszámok beolvasásához sokkal gyorsabb ha a megfelelő forrásfájlból szedjük ki azokat. Így nem kell minden egyes járatot végignézni ami egy nap megy
+-math: kerekítésekhez a végleges idő kiíratáskor
+
+### Felépítés, problémák
+Két nagyobb problémát/különbséget kellett kiküszöbölni a legrövidebb út megtalálásához szolgáló Dijkstra-algoritmus implementálásához. Mindkettő probléma adódik az adatok nagy mennyiségéből is, miután ebben a helyzetben 'bruto force' megoldás nem elfogadható. A két nagy különbség egy megszokott legrövidebb út feladathoz képest:
+- A felépített gráfban az élek súlya egy adott ponttól relatív volt. Tehát nem lehetett akármelyik élet felhasználni akármikor az beérkezett időtől függően lehetett értelmezni a használható éleket és azok küzöl megkeresni a következő használhatókat
+-A másik nehézség, hogy a gráfban kétféle él: járatélek és a TRANSFER - sétaélek, így a lehetséges szomszédoknál oda kellett figyelni az éltípúsra is
+Emellett figyelembe kellett venni:
+- A gráfon vannak többszörös élek
+- A gráf időponttól függően nem biztos, hogy teljesen összefüggő
+- Éjszakai és nappali gráfnak a helyes használatát: miután az éjszakai gráfban nem biztos, hogy ugyanazon járatokat lehet használni, sőt vannak megállók, amikben csak éjszaka/nappal áll meg jármű így a másik gráfban benne se lesz ez a csúcs miután élek alapján van felépítve a gráf
+
+
+### graf_betoltes, routes
+- graf_betoltes: adott pickle formátumú fájlból felípit egy nx gráfot: sajnos a ui kialakítása miatt kétszer is meg lesz hívva ez a függvény a nappali és az éjszakai gráf  
+- routes: közvetlenül a forrásfájlból olvassa be a megállókat és csinál egy listát belőle
+
+### dijkstra
+- Nappali vagy éjszakai gráf használatához a megfelelő gráfot tölti be
+- Hiányos kimenet kezelése: a függvény eltárol egy 'tipus' változót ez szükséges a kimenet értelmezéséhez/felhasználásához: 
+    - Ha talált utat akkor azt az éjszakai (1) vagy nappali (0) gráfban
+    - Ha nem megfelelő megállót adtunk meg kezdésnek vagy végnek (-1)
+    Megjegyzés: ilyenből 1 darab van, ahogy azt az Easter egg-ben is le lett írva
+    - Ha megfelelő adatokat adtunk meg de túl későn indultunk, így nem értünk célba (-2)
+    Megjegyzés: A projekt készítése közben nagyon sok ilyet találtunk így az éjszakai gráf "hosszát", tehát hogy milyen sokáig nézzük még másnapi járatokat, meghosszabbítottuk. Ezután lett tesztelve egy konkrét megállóból Kőbányáról, elérhető-e éjfélkor minden más megálló. Innen elérhető volt minden, de mivel ez nem egy teljeskörő tesztelés, így továbbra is a kódban hagytuk.
+- Célállomásig tartó algoritmus: Dijkstra-algoritmus van implementálva néhány kisebb-nagyobb változtatással
+    - Maga a Dijkstra-algoritmus működése: pozítiv élúsolyozott, irányitott vagy irányítatlan gráfokra alkalmazható. Három halmazba soroljuk a csúcsokat: meglátogatott, nem látogatott, kivizsgált. Az algoritmus kiválasztja a meglátogatott csúcsok közül azt, ahova eddig a legrövidebb idő alatt el lehetett jutni végigiterál az élein frissíti a legrövidebb uthosszakat a szomszédes nem kivizsgált csúcsokon és átrakja a kivizsgált csúcshalmazba. Belátható, hogy ilyenkor az elárolt legrövidebb úthosszak megfelelőek lesznek.
+- Inicalizálás:
+    - 'K' könyvtárba tárolom el minden csúcsra az addig talált legrövidebb út hosszat
+    - A csúcshoz tartozó legrövidebb út rekonstruálásához kell a 'p' könyvtár itt van eltárolva a:
+    [előző csúcs, aktuális csúcs, None (key), járat száma amin jöttünk, járat típusa, (indulási idő, utazási idő)]
+    - not_visited, visited halmazok pedig értelemszerűen a látogatott/nem látogatott csúcsok halmaza
+- Változtatások az algoritmuson:
+    -Az algoritmus addig fog futni, csak amíg a célállomás kivizsgált lesz ugyanis ezután a távolsága már nem fog változni és a többi csúcsra nem vagyunk kiváncsiak. Az algoritmus addig fog futni amíg ki nem kerül tehát a végcél. Vagy ki nem ürül azon csúcsok halmaza, ahonnan elérhető még másik csúcs
+    - A kivizsgálásnál figyelembe kell venni a többszörös éleket , így minden csúcsra a belőle összes kimenő járat szerint és szomszédos csúcs szerint iterálunk végig az éleken. Sőt ezután két részre bontjuk ezeket az éleket TRNASFER és járat-élekere
+    - Járat-élek esetén: figyelembe véve, hogy csak azután tudunk felszállni egy járatra, hogy odaérünk a megállóba. Ezután csak az első járatot fogjuk minden élre figyelembe venni, amire fel tudunk szállni, mivel egy legrövidebb útnál feltételezzük, hogy az első járatra ami jön érdemes felszállni. Ennek megkereséséhez felhasználjuk, hogy ezek idő szerint sorrendbe voltak rakva így az első megtalálása után nézhetjük a következő élt.
+    - Séta élek esetén pedig simán hozzáadjuk a megfelelő útidőt itt nem volt szükséges relatív időt nézni, mivel ezek mind 00:00-kor indulnak, mivel előre nem lehet tudni mikor kell majd sétálnunk
+- Kimenet: 
+    - Amennyiben találtunk utat a recontruct_path segítségével visszaadjuk az utat, az fenyőt amit bejárt az algoritmus és hogy tényleg sikerült találni utat és ezt este (1) vagy nappali (0) gráfban tettük meg, tehát a 'tipus' változót.
+    - Amennyiben nem találunk utat: a bejárt fenyőt és az indulási pontot adjuk vissza a 'tipus' változóval együtt
+    - Ha nincs benne a gráfban a kezdő-/végpont akkor egy listát és könytárat a kimenet típusával
+
+### reconstruct_path
+- Legrövidebb út visszafejtése parent szerint: parent könyvtár segítségével felfejthető a végponttól kezdve a kezdőpontig a legrövidebbb út (legrövidebb út kezdőszelete is legrövidebb út)
+Megjegyzés: ez a függvény csak abban az esetben lesz meghívva amikor van legrövdebb út mivel különben indexelési hibát ad
+
+### pretty_path
+A dijkstra algoritmus outputjából képez egy szöveges megjelenítését a megtalált, vagy esetlegesen nem megtalált útnak.
+- Inicializálás és bemenetek kezelése:
+    - Elején a kimenet típúsától függően kezeli a: 'nem létező' megállókat, nem létező legrövidebb utat, ha a két megálló megegyezik
+    - Ezután betölti a megfelelő megállók listáját (éjszakai/nappali)
+    - 'pretty' listában fogjuk eltárolni és úgymond járatonként eltárolni a szükséges információkat a legrövidebb útról
+- Adatok felépítése: 
+    - Éleken végigiterálunk és minden járatra létrehozunk egy elemet a listában és a következő formában tároljuk el az adatokat hozzá:
+    [elindulási csúcs, [köztes megállók], leszállási csúcs, járat száma, járat típusa, [elindulási idő, köztes megallók érkezési ideje, érkezési idő]]
+    - Amennyiben a következő él járatszáma megegyezik az előző él járatszámával feltételezzük, hogy ilyenkor nem történt átszállás. Ez általánosságban feltételezhető, mivel az algoritmus során a lehető leghamarabbi járatra 'felszállunk' amire tudunk-
+    - Különben új járatra szállunk és új elemet hozunk létre a listában
+- Szöveg felépítése:
+    - Elején feljegyezzük az indulási időt, érkezési időt és a teljes út hosszát
+    - Aztán végigiterálunk a járatokon:
+        - Amennyiben séta volt: Séta _ megállóig _ perc
+        - Különben: _megállótól _ megállóig _ perc,
+        majd megálló-érkezési idő párokat
+
+### egyéb
+- pretty_time: egész algoritmus 00:00-tól számított másodpercekben számol, így ezeket konvertálja egy emberek által is használt időformátumra. Emellett figyelembe veszi a kiíratásnál ha túllóg az éjfélen a menetidő az algoritmusban ugyanis ilyenkor továbbra is az előző napi 0 órától számol. A napforudlást egy (+1) jelzi
+- transport_conversion: járattípus szerint a megfelelő szöveget adja vissza pl: 3 --> busz 
+-main futtatásnál: ez a rész csak akkor fut le, ha közvetlenül ezt a fájlt futtatjuk így máskor amikor importáljuk ezt a fájlt ez a rész nem lesz bemásolva kódba. Ez megkkönyíti a debuggolást. 
+
+Megjegyzés: lettek tesztelve az adatok egy külön fájlban végig lett futtatva egy konkrét megállóbol éjféli indulással az összes többi megállóba. Ez nem teljeskörű tesztelés, így továbbra is lehetnek benne érdekes kimenetek 'nem létező megállókat talál' vagy nem jut el időben a célba. Ennek kiküszöbölésére a gráf éjfél után még 7 óráig elinduló járatok is bekerültek az éjszakai gráfba, így elég nehéz találni ilyen eseteket, esetleg nagyon ritkán érintett megállókat. 
 
 ## ui.py
 - programok importálása

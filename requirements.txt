@@ -1,0 +1,7 @@
+numpy
+networkx
+pandas
+scipy
+matplotlib
+tkinter
+unidecode
