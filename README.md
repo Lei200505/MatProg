@@ -194,16 +194,30 @@ Emellett figyelembe kellett venni:
     - Ha nincs benne a gráfban a kezdő-/végpont akkor egy listát és könytárat a kimenet típusával
 
 ### reconstruct_path
+- Legrövidebb út visszafejtése parent szerint: parent könyvtár segítségével felfejthető a végponttól kezdve a kezdőpontig a legrövidebbb út (legrövidebb út kezdőszelete is legrövidebb út)
+Megjegyzés: ez a függvény csak abban az esetben lesz meghívva amikor van legrövdebb út mivel különben indexelési hibát ad
 
 ### pretty_path
-- Útvonalterv szép kiíratásáshoz szükséges adatok
-    - megfelelő járatok együttkezelése
-    - idő konvertálása
-    - szöveg létrehozása
+A dijkstra algoritmus outputjából képez egy szöveges megjelenítését a megtalált, vagy esetlegesen nem megtalált útnak.
+- Inicializálás és bemenetek kezelése:
+    - Elején a kimenet típúsától függően kezeli a: 'nem létező' megállókat, nem létező legrövidebb utat, ha a két megálló megegyezik
+    - Ezután betölti a megfelelő megállók listáját (éjszakai/nappali)
+    - 'pretty' listában fogjuk eltárolni és úgymond járatonként eltárolni a szükséges információkat a legrövidebb útról
+- Adatok felépítése: 
+    - Éleken végigiterálunk és minden járatra létrehozunk egy elemet a listában és a következő formában tároljuk el az adatokat hozzá:
+    [elindulási csúcs, [köztes megállók], leszállási csúcs, járat száma, járat típusa, [elindulási idő, köztes megallók érkezési ideje, érkezési idő]]
+    - Amennyiben a következő él járatszáma megegyezik az előző él járatszámával feltételezzük, hogy ilyenkor nem történt átszállás. Ez általánosságban feltételezhető, mivel az algoritmus során a lehető leghamarabbi járatra 'felszállunk' amire tudunk-
+    - Különben új járatra szállunk és új elemet hozunk létre a listában
+- Szöveg felépítése:
+    - Elején feljegyezzük az indulási időt, érkezési időt és a teljes út hosszát
+    - Aztán végigiterálunk a járatokon:
+        - Amennyiben séta volt: Séta _ megállóig _ perc
+        - Különben: _megállótól _ megállóig _ perc,
+        majd megálló-érkezési idő párokat
 
 ### egyéb
-- pretty_time:
-- transport_conversion:
--if _name_: 
+- pretty_time: egész algoritmus 00:00-tól számított másodpercekben számol, így ezeket konvertálja egy emberek által is használt időformátumra. Emellett figyelembe veszi a kiíratásnál ha túllóg az éjfélen a menetidő az algoritmusban ugyanis ilyenkor továbbra is az előző napi 0 órától számol. A napforudlást egy (+1) jelzi
+- transport_conversion: járattípus szerint a megfelelő szöveget adja vissza pl: 3 --> busz 
+-main futtatásnál: ez a rész csak akkor fut le, ha közvetlenül ezt a fájlt futtatjuk így máskor amikor importáljuk ezt a fájlt ez a rész nem lesz bemásolva kódba. Ez megkkönyíti a debuggolást. 
 
 ## ui.py
