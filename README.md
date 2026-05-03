@@ -193,10 +193,15 @@ Emellett figyelembe kellett venni:
     - Amennyiben nem találunk utat: a bejárt fenyőt és az indulási pontot adjuk vissza a 'tipus' változóval együtt
     - Ha nincs benne a gráfban a kezdő-/végpont akkor egy listát és könytárat a kimenet típusával
 
-- kimenetben rekonstruálni a megtalált legrövidebb utat 
+### reconstruct_path
+
+### pretty_path
 - Útvonalterv szép kiíratásáshoz szükséges adatok
     - megfelelő járatok együttkezelése
     - idő konvertálása
     - szöveg létrehozása
+
+### egyéb
+
 
 ## ui.py
