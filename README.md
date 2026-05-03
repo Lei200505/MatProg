@@ -188,6 +188,10 @@ Emellett figyelembe kellett venni:
     - A kivizsgálásnál figyelembe kell venni a többszörös éleket , így minden csúcsra a belőle összes kimenő járat szerint és szomszédos csúcs szerint iterálunk végig az éleken. Sőt ezután két részre bontjuk ezeket az éleket TRNASFER és járat-élekere
     - Járat-élek esetén: figyelembe véve, hogy csak azután tudunk felszállni egy járatra, hogy odaérünk a megállóba. Ezután csak az első járatot fogjuk minden élre figyelembe venni, amire fel tudunk szállni, mivel egy legrövidebb útnál feltételezzük, hogy az első járatra ami jön érdemes felszállni. Ennek megkereséséhez felhasználjuk, hogy ezek idő szerint sorrendbe voltak rakva így az első megtalálása után nézhetjük a következő élt.
     - Séta élek esetén pedig simán hozzáadjuk a megfelelő útidőt itt nem volt szükséges relatív időt nézni, mivel ezek mind 00:00-kor indulnak, mivel előre nem lehet tudni mikor kell majd sétálnunk
+- Kimenet: 
+    - Amennyiben találtunk utat a recontruct_path segítségével visszaadjuk az utat, az fenyőt amit bejárt az algoritmus és hogy tényleg sikerült találni utat és ezt este (1) vagy nappali (0) gráfban tettük meg, tehát a 'tipus' változót.
+    - Amennyiben nem találunk utat: a bejárt fenyőt és az indulási pontot adjuk vissza a 'tipus' változóval együtt
+    - Ha nincs benne a gráfban a kezdő-/végpont akkor egy listát és könytárat a kimenet típusával
 
 - kimenetben rekonstruálni a megtalált legrövidebb utat 
 - Útvonalterv szép kiíratásáshoz szükséges adatok
