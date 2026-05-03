@@ -23,7 +23,7 @@ A program alapvetően egy leggyorsabb utat keres két megálló között az indu
 
 - Nem talált útvonal: előfordulhat, hogy túl későn indulnál el egy megállóba ahova vagy csak nagyon sok sétával vagy csak nagyon sokára érnél oda, ilyenkor azt ajánlja, hogy hamarabb indulj el
 
--Easter egg: a Maglódi Auchan megálló az egyetlen olyan megálló ahova, ha éjfélhez elég közel akarsz indulni, akkor azt az üzenetet kapod, hogy a megálló nem is létezik (ennek az oka, hogy a megállóhoz legközelebbi másik megálló 1km-es távolságon kívül van így az algoritmus szerint) 
+Easter egg: a Maglódi Auchan megálló az egyetlen olyan megálló ahova, ha éjfélhez elég közel akarsz indulni, akkor azt az üzenetet kapod, hogy a megálló nem is létezik (ennek az oka, hogy a megállóhoz legközelebbi másik megálló 1km-es távolságon kívül van így az algoritmus szerint) 
 
 # Fájlok tartalma
 
