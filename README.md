@@ -202,6 +202,8 @@ Emellett figyelembe kellett venni:
     - szöveg létrehozása
 
 ### egyéb
-
+- pretty_time:
+- transport_conversion:
+-if _name_: 
 
 ## ui.py
