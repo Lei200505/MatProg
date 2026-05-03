@@ -6,6 +6,7 @@ A projekt az OpenData Portál tervezett menetrendi adatait használja:
 https://shorturl.at/X8C9O
 
 ## Használat
+0. A fájlok futtatásához szükséges könytárakat töltsd le, ezek megtalálhatóak a requirements.txt fájlban
 1. Töltsd le a fenti linkről a ZIP fájlt (budapest_gtfs.zip)
 2. Csomagold ki a projekt mappájába
 3. Nevezd át vagy helyezd át a mappát ide: budapest_data
@@ -145,13 +146,49 @@ Ez a metódus a dijkstra.py outputjaként kapott legrövidebb utak start-fenyőj
 4. Végül a dijkstra.py path legrövidebb útjából kiolvassuk a legrövidebb utat. A lépéseket egy for ciklusban, iteratívan építjük az utat, így "belelátunk" az algoritmus működésébe, a legrövidebb utat animáljuk.
 5. Minden uv lépésre az útban meghatározzuk u-t, v-t, milyen és melyik járművön tette meg az u és v között, majd a get_edge_color segítségével megkapjuk a színét. 
 6. Végül megfelelő színnel ábrázoljuk (felülírjuk, a 3.-ban szürkével kirajzolt út-élt), és megállítjuk az animációt plt.pause segítségével 0.2 másodperce lépésenként.
+
 ## dijkstra.py
-- Feldolgozott gráf betöltése
-- Megfelelő megállók és járatok betöltése
-- Módosított dijkstra
-    - Nappali vagy éjszakai gráf használata
-    - Hiányos kimenet kezelése
-    - Célállomásig tartó algoritmus (séta vagy buszjárat szerinti éleken haladva, járat rekonstruáláshoz szükséges adatok eltárolásával)
+### Dependenciák:
+-networkx a budapest.pkl és night_budapest.pkl-ben eltárolt adatokból visszaépíti a szükséges gráfot az élekkel és a megállókkal mint pontok. Ez a gráf felépytése az adatoknak nagyban megkönnyíti a dijkstra algoritmus implementálását is és az útvonalak rekonsturálását is
+- pickle formátum beolvasásához szükséges (gyorsabb adatfeldolgozáshoz bináris adatok)
+- pandas: míg a megállókat a gráfból olvassuk ki, a járatszámok beolvasásához sokkal gyorsabb ha a megfelelő forrásfájlból szedjük ki azokat. Így nem kell minden egyes járatot végignézni ami egy nap megy
+-math: kerekítésekhez a végleges idő kiíratáskor
+
+### Felépítés, problémák
+Két nagyobb problémát/különbséget kellett kiküszöbölni a legrövidebb út megtalálásához szolgáló Dijkstra-algoritmus implementálásához. Mindkettő probléma adódik az adatok nagy mennyiségéből is, miután ebben a helyzetben 'bruto force' megoldás nem elfogadható. A két nagy különbség egy megszokott legrövidebb út feladathoz képest:
+- A felépített gráfban az élek súlya egy adott ponttól relatív volt. Tehát nem lehetett akármelyik élet felhasználni akármikor az beérkezett időtől függően lehetett értelmezni a használható éleket és azok küzöl megkeresni a következő használhatókat
+-A másik nehézség, hogy a gráfban kétféle él: járatélek és a TRANSFER - sétaélek, így a lehetséges szomszédoknál oda kellett figyelni az éltípúsra is
+Emellett figyelembe kellett venni:
+- A gráfon vannak többszörös élek
+- A gráf időponttól függően nem biztos, hogy teljesen összefüggő
+- Éjszakai és nappali gráfnak a helyes használatát: miután az éjszakai gráfban nem biztos, hogy ugyanazon járatokat lehet használni, sőt vannak megállók, amikben csak éjszaka/nappal áll meg jármű így a másik gráfban benne se lesz ez a csúcs miután élek alapján van felépítve a gráf
+
+
+### graf_betoltes, routes
+- graf_betoltes: adott pickle formátumú fájlból felípit egy nx gráfot: sajnos a ui kialakítása miatt kétszer is meg lesz hívva ez a függvény a nappali és az éjszakai gráf  
+- routes: közvetlenül a forrásfájlból olvassa be a megállókat és csinál egy listát belőle
+
+### dijkstra
+    - Nappali vagy éjszakai gráf használatához a megfelelő gráfot tölti be
+    - Hiányos kimenet kezelése: a függvény eltárol egy 'tipus' változót ez szükséges a kimenet értelmezéséhez/felhasználásához: 
+        - Ha talált utat akkor azt az éjszakai (1) vagy nappali (0) gráfban
+        - Ha nem megfelelő megállót adtunk meg kezdésnek vagy végnek (-1)
+        Megjegyzés: ilyenből 1 darab van, ahogy azt az Easter egg-ben is le lett írva
+        - Ha megfelelő adatokat adtunk meg de túl későn indultunk, így nem értünk célba (-2)
+        Megjegyzés: A projekt készítése közben nagyon sok ilyet találtunk így az éjszakai gráf "hosszát", tehát hogy milyen sokáig nézzük még másnapi járatokat, meghosszabbítottuk. Ezután lett tesztelve (tester.py) egy konkrét megállóból Kőbányáról, elérhető-e éjfélkor minden más megálló. Innen elérhető volt minden, de mivel ez nem egy teljeskörő tesztelés, így továbbra is a kódban hagytuk.
+    - Célállomásig tartó algoritmus: Dijkstra-algoritmus van implementálva néhány kisebb-nagyobb változtatással:
+        -Maga a Dijkstra-algoritmus működése: pozítiv élúsolyozott, irányitott vagy irányítatlan gráfokra alkalmazható. Három halmazba soroljuk a csúcsokat: meglátogatott, nem látogatott, kivizsgált. Az algoritmus kiválasztja a meglátogatott csúcsok közül azt, ahova eddig a legrövidebb idő alatt el lehetett jutni végigiterál az élein frissíti a legrövidebb uthosszakat a szomszédes nem kivizsgált csúcsokon és átrakja a kivizsgált csúcshalmazba. Belátható, hogy ilyenkor az elárolt legrövidebb úthosszak megfelelőek lesznek.
+    -Inicalizálás:
+        - 'K' könyvtárba tárolom el minden csúcsra az addig talált legrövidebb út hosszat
+        - A csúcshoz tartozó legrövidebb út rekonstruálásához kell a 'p' könyvtár itt van eltárolva a:
+        [előző csúcs, aktuális csúcs, None (key), járat száma amin jöttünk, járat típusa, (indulási idő, utazási idő)]
+        - not_visited, visited halmazok pedig értelemszerűen a látogatott/nem látogatott csúcsok halmaza
+    -Változtatások az algoritmuson:
+        -Az algoritmus addig fog futni, csak amíg a célállomás kivizsgált lesz ugyanis ezután a távolsága már nem fog változni és a többi csúcsra nem vagyunk kiváncsiak. Az algoritmus addig fog futni amíg ki nem kerül tehát a végcél. Vagy ki nem ürül azon csúcsok halmaza, ahonnan elérhető még másik csúcs
+        - A kivizsgálásnál figyelembe kell venni a többszörös éleket , így minden csúcsra a belőle összes kimenő járat szerint és szomszédos csúcs szerint iterálunk végig az éleken. Sőt ezután két részre bontjuk ezeket az éleket TRNASFER és járat-élekere
+        - Járat-élek esetén: figyelembe véve, hogy csak azután tudunk felszállni egy járatra, hogy odaérünk a megállóba. Ezután csak az első járatot fogjuk minden élre figyelembe venni, amire fel tudunk szállni, mivel egy legrövidebb útnál feltételezzük, hogy az első járatra ami jön érdemes felszállni. Ennek megkereséséhez felhasználjuk, hogy ezek idő szerint sorrendbe voltak rakva így az első megtalálása után nézhetjük a következő élt.
+        - Séta élek esetén pedig simán hozzáadjuk a megfelelő útidőt itt nem volt szükséges relatív időt nézni, mivel ezek mind 00:00-kor indulnak, mivel előre nem lehet tudni mikor kell majd sétálnunk
+
     - kimenetben rekonstruálni a megtalált legrövidebb utat 
 - Útvonalterv szép kiíratásáshoz szükséges adatok
     - megfelelő járatok együttkezelése
