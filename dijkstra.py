@@ -176,13 +176,13 @@ def pretty_time(t):
 def transport_conversion(id):
     if id == 3:
         return "busz"
-    if id == 0:
+    elif id == 0:
         return "villamos"
-    if id == 11:
+    elif id == 11:
         return "trolibusz"
-    if id == 109:
+    elif id == 109:
         return "hév"
-    if id == 1:
+    elif id == 1:
         return "metró"
 
 
