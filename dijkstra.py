@@ -1,8 +1,6 @@
-import csv
 import networkx as nx
 import pandas as pd
 import pickle
-import time
 import math
 
 #-----------Adatok betöltése-----------
