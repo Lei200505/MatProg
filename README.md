@@ -175,7 +175,7 @@ Emellett figyelembe kellett venni:
     - Ha nem megfelelő megállót adtunk meg kezdésnek vagy végnek (-1)
     Megjegyzés: ilyenből 1 darab van, ahogy azt az Easter egg-ben is le lett írva
     - Ha megfelelő adatokat adtunk meg de túl későn indultunk, így nem értünk célba (-2)
-    Megjegyzés: A projekt készítése közben nagyon sok ilyet találtunk így az éjszakai gráf "hosszát", tehát hogy milyen sokáig nézzük még másnapi járatokat, meghosszabbítottuk. Ezután lett tesztelve (tester.py) egy konkrét megállóból Kőbányáról, elérhető-e éjfélkor minden más megálló. Innen elérhető volt minden, de mivel ez nem egy teljeskörő tesztelés, így továbbra is a kódban hagytuk.
+    Megjegyzés: A projekt készítése közben nagyon sok ilyet találtunk így az éjszakai gráf "hosszát", tehát hogy milyen sokáig nézzük még másnapi járatokat, meghosszabbítottuk. Ezután lett tesztelve egy konkrét megállóból Kőbányáról, elérhető-e éjfélkor minden más megálló. Innen elérhető volt minden, de mivel ez nem egy teljeskörő tesztelés, így továbbra is a kódban hagytuk.
 - Célállomásig tartó algoritmus: Dijkstra-algoritmus van implementálva néhány kisebb-nagyobb változtatással
     - Maga a Dijkstra-algoritmus működése: pozítiv élúsolyozott, irányitott vagy irányítatlan gráfokra alkalmazható. Három halmazba soroljuk a csúcsokat: meglátogatott, nem látogatott, kivizsgált. Az algoritmus kiválasztja a meglátogatott csúcsok közül azt, ahova eddig a legrövidebb idő alatt el lehetett jutni végigiterál az élein frissíti a legrövidebb uthosszakat a szomszédes nem kivizsgált csúcsokon és átrakja a kivizsgált csúcshalmazba. Belátható, hogy ilyenkor az elárolt legrövidebb úthosszak megfelelőek lesznek.
 - Inicalizálás:
@@ -219,5 +219,7 @@ A dijkstra algoritmus outputjából képez egy szöveges megjelenítését a meg
 - pretty_time: egész algoritmus 00:00-tól számított másodpercekben számol, így ezeket konvertálja egy emberek által is használt időformátumra. Emellett figyelembe veszi a kiíratásnál ha túllóg az éjfélen a menetidő az algoritmusban ugyanis ilyenkor továbbra is az előző napi 0 órától számol. A napforudlást egy (+1) jelzi
 - transport_conversion: járattípus szerint a megfelelő szöveget adja vissza pl: 3 --> busz 
 -main futtatásnál: ez a rész csak akkor fut le, ha közvetlenül ezt a fájlt futtatjuk így máskor amikor importáljuk ezt a fájlt ez a rész nem lesz bemásolva kódba. Ez megkkönyíti a debuggolást. 
+
+Megjegyzés: lettek tesztelve az adatok egy külön fájlban végig lett futtatva egy konkrét megállóbol éjféli indulással az összes többi megállóba. Ez nem teljeskörű tesztelés, így továbbra is lehetnek benne érdekes kimenetek 'nem létező megállókat talál' vagy nem jut el időben a célba. Ennek kiküszöbölésére a gráf éjfél után még 7 óráig elinduló járatok is bekerültek az éjszakai gráfba, így elég nehéz találni ilyen eseteket, esetleg nagyon ritkán érintett megállókat. 
 
 ## ui.py
