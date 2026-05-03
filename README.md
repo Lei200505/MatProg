@@ -176,14 +176,14 @@ Emellett figyelembe kellett venni:
     Megjegyzés: ilyenből 1 darab van, ahogy azt az Easter egg-ben is le lett írva
     - Ha megfelelő adatokat adtunk meg de túl későn indultunk, így nem értünk célba (-2)
     Megjegyzés: A projekt készítése közben nagyon sok ilyet találtunk így az éjszakai gráf "hosszát", tehát hogy milyen sokáig nézzük még másnapi járatokat, meghosszabbítottuk. Ezután lett tesztelve (tester.py) egy konkrét megállóból Kőbányáról, elérhető-e éjfélkor minden más megálló. Innen elérhető volt minden, de mivel ez nem egy teljeskörő tesztelés, így továbbra is a kódban hagytuk.
-- Célállomásig tartó algoritmus: Dijkstra-algoritmus van implementálva néhány kisebb-nagyobb változtatással:
-    -Maga a Dijkstra-algoritmus működése: pozítiv élúsolyozott, irányitott vagy irányítatlan gráfokra alkalmazható. Három halmazba soroljuk a csúcsokat: meglátogatott, nem látogatott, kivizsgált. Az algoritmus kiválasztja a meglátogatott csúcsok közül azt, ahova eddig a legrövidebb idő alatt el lehetett jutni végigiterál az élein frissíti a legrövidebb uthosszakat a szomszédes nem kivizsgált csúcsokon és átrakja a kivizsgált csúcshalmazba. Belátható, hogy ilyenkor az elárolt legrövidebb úthosszak megfelelőek lesznek.
-    -Inicalizálás:
+- Célállomásig tartó algoritmus: Dijkstra-algoritmus van implementálva néhány kisebb-nagyobb változtatással
+    - Maga a Dijkstra-algoritmus működése: pozítiv élúsolyozott, irányitott vagy irányítatlan gráfokra alkalmazható. Három halmazba soroljuk a csúcsokat: meglátogatott, nem látogatott, kivizsgált. Az algoritmus kiválasztja a meglátogatott csúcsok közül azt, ahova eddig a legrövidebb idő alatt el lehetett jutni végigiterál az élein frissíti a legrövidebb uthosszakat a szomszédes nem kivizsgált csúcsokon és átrakja a kivizsgált csúcshalmazba. Belátható, hogy ilyenkor az elárolt legrövidebb úthosszak megfelelőek lesznek.
+- Inicalizálás:
     - 'K' könyvtárba tárolom el minden csúcsra az addig talált legrövidebb út hosszat
     - A csúcshoz tartozó legrövidebb út rekonstruálásához kell a 'p' könyvtár itt van eltárolva a:
     [előző csúcs, aktuális csúcs, None (key), járat száma amin jöttünk, járat típusa, (indulási idő, utazási idő)]
     - not_visited, visited halmazok pedig értelemszerűen a látogatott/nem látogatott csúcsok halmaza
--Változtatások az algoritmuson:
+- Változtatások az algoritmuson:
     -Az algoritmus addig fog futni, csak amíg a célállomás kivizsgált lesz ugyanis ezután a távolsága már nem fog változni és a többi csúcsra nem vagyunk kiváncsiak. Az algoritmus addig fog futni amíg ki nem kerül tehát a végcél. Vagy ki nem ürül azon csúcsok halmaza, ahonnan elérhető még másik csúcs
     - A kivizsgálásnál figyelembe kell venni a többszörös éleket , így minden csúcsra a belőle összes kimenő járat szerint és szomszédos csúcs szerint iterálunk végig az éleken. Sőt ezután két részre bontjuk ezeket az éleket TRNASFER és járat-élekere
     - Járat-élek esetén: figyelembe véve, hogy csak azután tudunk felszállni egy járatra, hogy odaérünk a megállóba. Ezután csak az első járatot fogjuk minden élre figyelembe venni, amire fel tudunk szállni, mivel egy legrövidebb útnál feltételezzük, hogy az első járatra ami jön érdemes felszállni. Ennek megkereséséhez felhasználjuk, hogy ezek idő szerint sorrendbe voltak rakva így az első megtalálása után nézhetjük a következő élt.
