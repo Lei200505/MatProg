@@ -224,6 +224,12 @@ A dijkstra algoritmus outputjából képez egy szöveges megjelenítését a meg
 Megjegyzés: lettek tesztelve az adatok egy külön fájlban végig lett futtatva egy konkrét megállóbol éjféli indulással az összes többi megállóba. Ez nem teljeskörű tesztelés, így továbbra is lehetnek benne érdekes kimenetek 'nem létező megállókat talál' vagy nem jut el időben a célba. Ennek kiküszöbölésére a gráf éjfél után még 7 óráig elinduló járatok is bekerültek az éjszakai gráfba, így elég nehéz találni ilyen eseteket, esetleg nagyon ritkán érintett megállókat. 
 
 ## ui.py
+### Dependenciák
+- tkinter: felhasználói felület kialakítása (gridrendszer, címkék, gombok, keresőmezők, listák)
+- unidecode: keresőmezőben való keresés során elérhető találatok feldobása
+- matplotlib, a többi program: tervezés gombra való kattintás után az algoritmus lefuttatása, gráf kirajzolása
+
+### Leírás
 - programok importálása
 - gráfok, megállók betöltése
 - főablak létrehozása
@@ -235,3 +241,42 @@ Megjegyzés: lettek tesztelve az adatok egy külön fájlban végig lett futtatv
     - tervezés a gomb megnyomására
         - gráf vizualizálása
         - átszállások kiírása
+
+### exe_path
+- a végső produktum egy .exe file lesz, ehhez a .pkl gráfokat es a gfts adatbázist be kell csomagolnunk, pyinstallerel csináljuk az .exe-t, ehhez kell ennek a tmp mappája, a  .meipass
+
+### köztes
+- gráfok, megállók betöltése, a felhasználói felülethez szükséges formátumban eltárolása (pl. megállókat listában, megállókat a hozzájuk tartozó kódokkal dictionaryben)
+- gráfok vizualizációjához szükséges objektumok létrehozása
+- a felület fő ablakának létrehozása
+
+### enable
+- a tervező gomb le van tiltva, ameddig két bool True nem lesz, ez a két keresőmező kitöltése után teljesül
+
+### update_fro, update_to
+- a kezdő-és végponthoz tartozó listboxot frissíti a megadott listával (amit a keresőmezőbe beírt szöveg alapján kap)
+
+### filterfro, filterto
+- a kezdő-és végponthoz tartozó szűrőfüggvények
+- a froboolt és a toboolt hamissá teszi, hogy ne lehessen nem létező megállóból/ba tervezni, ezenkívül hozzáadja egy listához azokat a megállókat, amelyek nevében megtalálható a keresett szöveg, a listát adva bemenetként lefuttatja az update_to/fro-t
+- a függvény billentyű lenyomásához van bindolva
+
+### filloutfro, filloutto
+- a függvény a listbox egyik elemére való kattintáshoz vany bindolva
+- a kattintás során kitörli a keresőmezőbe beírt szöveget, és helyettesíti a kiválasztottal, a saját boolját (pl. frobool) igazzá teszi
+- lefuttatja az enable függvényt
+
+### graph_ui, night_graph_ui
+- egész hálózat/éjszakai hálózat kirajzolása
+
+### endpoints
+- kezdő- és végpont megkeresése a dictionaryben a keresőmezőben lévő szöveg alapján (van több megálló ugyanazzal a névvel, ezek közül azt jegyzi fel, amelynek kódja a legelső a kulcsok között)
+- kezdő időpont kiszámítása a beállított idő szerint
+- dijkstra lefuttatása kezdő -és végponttal, beállított idővel
+- a dijkstra szöveges outputjának új ablakba való kiírása
+- a megkonstruált út megjelenítése új ablakban (először animáció, utána egy statikus kép)
+
+### egyéb
+- a címkék, keresőmezők, listboxok, comboboxok, gomb létrehozása (gridbe helyezése, szélesség beállítása, szöveg létrehozása, szövegstílus beállítása, stb.)
+- az órákhoz, percekhez tartozó legördülő menük értékét tároló változók létrehozása, alapidő beállítása
+- a gombokhoz a megfelelő programok társítása
