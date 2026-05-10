@@ -5,6 +5,10 @@ A program Budapest tömegközlekedési hálózatán, BKK, segít útvonalat terv
 A projekt az OpenData Portál tervezett menetrendi adatait használja:
 https://shorturl.at/X8C9O
 
+## Nyilatkozat az AI használatról
+
+Kijelentjük, hogy a projekt célkitűzése, forráskódjának felépítése, annak logikai működése, matematikai megalapozottsága a saját intellektuális termékünk. A projekt elkészítése során AI-alapú eszközöket kizárólag kódrészletek optimalizálásához való ötletek nyerésére, illetve kódrészletek debug-olására használtuk.
+
 ## Használat
 0. A fájlok futtatásához szükséges könytárakat töltsd le, ezek megtalálhatóak a requirements.txt fájlban
 1. Töltsd le a fenti linkről a ZIP fájlt (budapest_gtfs.zip)
